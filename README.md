@@ -31,12 +31,11 @@ This repository contains scripts to build and run a containerized deployment of 
 The openqa-webserver container runs an apache web server on port 8080.  It displays the live test results in a web browser and is also responsible for scheduling tests and the workers to run them; communicating with workers via REST API calls; and enabling interactive editing of tests and needles through the livehandler. The openqa-webserver acts a reverse proxy so that all communications with workers are routed to it through a single port.  
 
 ### Host Directories for Webserver
-Several directories are kept on the host and are bound into the openqa-webserver container when it runs.  Make sure these directories exist:
-`cd openqa-webserver; mkdir -p tests data hdd iso; cd ..`
+Make sure these subdirectories exist on the host in `openqa-webserver/`:  
 
-* `tests/`: the full [os-autoinst-distri-fedora](https://pagure.io/fedora-qa/os-autoinst-distri-fedora) repository where all the Fedora tests and needles reside. When the container runs, the script `init_openqa_web.sh` will either pull the full directory or just update it so that the tests are always up-to-date.  
+* `tests/`: The script `init_openqa_web.sh` will either pull the full [os-autoinst-distri-fedora](https://pagure.io/fedora-qa/os-autoinst-distri-fedora) repository or just update it.
 * `data/`: the PostgreSQL database where login information as well as test scheduling and results are stored
-* `hdd/`: holds OS images for testing.  Sometimes the images will be downloaded by the test from  `fedoraproject.org` but, in other cases, the images need to be generated on the host using Fedora's [createhdds](https://pagure.io/fedora-qa/createhdds).  If the host machine isn't itself running Fedora, then `createhdds` can't be run and some, but not all, of the tests will fail to execute.  
+* `hdd/`: holds OS images for testing.  Sometimes the images will be downloaded from  `fedoraproject.org` but, in other cases, the images need to be generated on the host using Fedora's [createhdds](https://pagure.io/fedora-qa/createhdds).  If the host machine isn't itself running Fedora, then `createhdds` can't be run and some, but not all, of the tests will fail to execute.  
   Host packages necessary to run createhdds:
   `sudo dnf install -y python3-libguestfs  libvirt-devel virt-install fedfind vim git`
   Helper script to create images for hdd directory:
@@ -69,18 +68,17 @@ And stop it with:
 ### Start the openqa-webserver as a service
 ```
 sudo cp openqa-webserver.service /etc/systemd/system/
-sudo loginctl enable-linger fedora
+sudo loginctl enable-linger <user>
 sudo systemctl daemon-reload
 sudo systemctl start openqa-webserver
 ```
 
 ### Login
-Login through the web UI using your Fedora Account.  
+Login through the web UI using a Fedora Account.  
 https://accounts.fedoraproject.org  
 
 Initially when you login to the web UI, you are just a `user` without any privileges.  
-The administrator can promote you to `operator` using the administrator's menu in the web UI.  An operator can run and control the tests.  
-There can only be one administrator.  To create the first administrator in a new database, from within the web UI container:    
+The administrator can promote you to `operator` using the administrator's menu in the web UI.  An operator can run and control the tests. There can only be one administrator.  To create the first administrator in a new database, from within the web UI container:    
 `su geekotest; /usr/share/openqa/script/create_admin fake_admin`  
 
 ### Loading Tests  
@@ -98,10 +96,13 @@ The openqa-consumer uses fedora-messaging to listen for new builds on the public
 [fedora-openqa](https://pagure.io/fedora-qa/fedora_openqa)  
 
 ### Host Directories for Consumer
-Several directories are kept on the host and are bound into the openqa-consumer container when it runs.  Make sure these directories exist:  
-`cd openqa-consumer; mkdir -p fedora-messaging-logs fedora-openqa`
+Make sure these subdirectories exist on the host in `openqa-consumer/`:    
+`fedora-messaging-logs`  
+`fedora-openqa`  
 
 ### Consumer Configuration
+
+In the `openqa-consumer/conf` subdirectory, make a copy of `client.conf` from the template.  
 
 Make a copy of the client.conf.template and fill in host and api keys/secrets.  
 `cp openqa-consumer/conf/client.conf.template openqa-webserver/conf/client.conf`
@@ -110,9 +111,8 @@ Make a copy of the client.conf.template and fill in host and api keys/secrets.
 |---------------------|---------------------------------|
 | `[172.31.1.1:8080]` | Authorize `fedora-openqa.py` to schedule tests. It's wrong to use `localhost` since this is the container's localhost.      |  
 
-
-* Make a copy of `fedora_openqa_scheduler.toml.template`  
-`cp openqa-consumer/conf/fedora_openqa_scheduler.toml.template openqa-webserver/conf/fedora_openqa_scheduler.toml`   
+In the `openqa-consumer/conf` subdirectory, make a copy of `fedora_openqa_scheduler.toml` from the template.
+The init script will automatically change the uuid and in the config each time the consumer is run.  
 
 ### Building openqa-consumer  
 `openqa-consumer/build-consumer-image.sh`    

@@ -13,7 +13,7 @@ ExecStart=/usr/bin/podman run --rm -i --name openqa-webserver \
 	-v ${SRV}/data:/var/lib/pgsql/data/:z \
 	-v ${SRV}/conf:/conf/:z \
 	-v ${SRV}/init_openqa_web.sh:/init_openqa_web.sh:z \
-	localhost/openqa:latest /init_openqa_web.sh
+	localhost/openqa-webserver:latest /init_openqa_web.sh
 Restart=no
 ExecStop=/usr/bin/podman exec -it openqa-webserver /bin/bash -c "pkill -f openqa-webui-daemon"
 

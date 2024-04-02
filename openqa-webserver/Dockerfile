@@ -18,11 +18,7 @@ RUN npm audit fix || true
 RUN dnf install -y openqa-local-db \
 	openqa-httpd mod_ssl mod_proxy_html mod_session \
 	perl-Mojolicious perl-Mojolicious-Plugin-AssetPack \
-	ruby-devel 'rubygem(sass)' fedora-messaging python3-jsonschema wget procps-ng
-
-# get packages needed by fedora_openqa
-RUN dnf install -y fedfind python3-pip && \
-	pip install resultsdb_api openqa_client typing_extensions mwclient resultsdb_conventions wikitcms
+	ruby-devel 'rubygem(sass)' python3-jsonschema wget procps-ng
 
 RUN ln -s /etc/httpd/conf.modules.d/00-base.conf /etc/httpd/conf.modules.d/00-base.load
 RUN ln -s /etc/httpd/conf.modules.d/00-ssl.conf /etc/httpd/conf.modules.d/00-ssl.load

@@ -1,9 +1,3 @@
-# fedora-openqa.py will take authorization from the first entry here
-# otherwise tell it where to look with --openqa-hostname 172.31.1.1
-[172.31.1.1:8080]
-key = 1234567890ABCDEF
-secret = 1234567890ABCDEF
-
 # fifloader.py will take authorization from localhost
 [localhost]
 key = 1234567890ABCDEF

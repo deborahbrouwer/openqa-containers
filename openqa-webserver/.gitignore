@@ -1,10 +1,10 @@
 iso/*
 !iso/cloudinit.iso
 hdd*
+!hdd/.gitkeep
 data*
 tests*
 createhdds*
-fedora_openqa*
 conf/*
 !conf/*.template
 !conf/openqa.ini

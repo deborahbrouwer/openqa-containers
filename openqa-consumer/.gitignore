@@ -1,0 +1,5 @@
+fedora-messaging-logs/*
+fedora_openqa/*
+conf/*
+!conf/*.template
+openqa-consumer/conf/fedora_openqa_scheduler.toml

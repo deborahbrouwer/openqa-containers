@@ -1,0 +1,18 @@
+[Unit]
+Description=OpenQA Fedora Messaging Consumer
+
+[Service]
+User=fedora
+Group=fedora
+Environment=SRV='/home/fedora/openqa-containers/openqa-consumer'
+ExecStart=/usr/bin/podman run --rm -i --name openqa-consumer \
+	-v ${SRV}/conf:/conf/:z \
+	-v ${SRV}/fedora-openqa:/fedora-openqa/:z \
+	-v ${SRV}/fedora-messaging-logs:/fedora-messaging-logs/:z \
+	-v ${SRV}/init_openqa_consumer.sh:/init_openqa_consumer.sh:z \
+	localhost/openqa:latest /init_openqa_consumer.sh
+Restart=on-failure
+ExecStop=/usr/bin/podman exec -it openqa-consumer /bin/bash -c "pkill -f fedora-messaging"
+
+[Install]
+WantedBy=multi-user.target

@@ -36,34 +36,20 @@ Make sure these subdirectories exist on the host in `openqa-webserver/`:
 * `tests/`: The script `init_openqa_web.sh` will either pull the full [os-autoinst-distri-fedora](https://pagure.io/fedora-qa/os-autoinst-distri-fedora) repository or just update it.
 * `data/`: the PostgreSQL database where login information as well as test scheduling and results are stored
 * `hdd/`: holds OS images for testing.  Sometimes the images will be downloaded from  `fedoraproject.org` but, in other cases, the images need to be generated on the host using Fedora's [createhdds](https://pagure.io/fedora-qa/createhdds).  If the host machine isn't itself running Fedora, then `createhdds` can't be run and some, but not all, of the tests will fail to execute.  
-  Host packages necessary to run createhdds:
+  Host packages necessary to run createhdds:  
   `sudo dnf install -y python3-libguestfs  libvirt-devel virt-install fedfind vim git`
   Helper script to create images for hdd directory:
   `./run_createhdds.sh`  
 * `iso/`: holds iso files for testing.
   
 ### Web Configuration    
-Make a copy of the client.conf.template and fill in host and api keys/secrets.  
-`cp openqa-webserver/conf/client.conf.template openqa-webserver/conf/client.conf`  
+In the `openqa-webserver/conf` subdirectory copy `client.conf.template` to `client.conf` and fill in host and api keys/secrets.
 
 ### Building Openqa Webserver
-`openqa-webserver/build-webserver-image.sh`  
+In the subdirectory `openqa-webserver/` run `build-webserver-image.sh`  
 
 ### Start the openqa-webserver locally
-```bash
-SRV='/home/fedora/openqa-containers/openqa-webserver';
-podman run --rm -it --name openqa-webserver \
-	-p 8080:80 -p 1443:443 \
-	--network=slirp4netns \
-	-v ${SRV}/hdd:/var/lib/openqa/share/factory/hdd:z \
-	-v ${SRV}/iso:/var/lib/openqa/share/factory/iso:z \
-	-v ${SRV}/data:/var/lib/pgsql/data/:z \
-	-v ${SRV}/conf:/conf/:z \
-	-v ${SRV}/init_openqa_web.sh:/init_openqa_web.sh:z \
-	localhost/openqa:latest /init_openqa_web.sh
-```
-And stop it with:
-`/usr/bin/podman exec -it openqa-webserver /bin/bash -c "pkill -f openqa-webui-daemon"`  
+Run the ExecStart command available in the `openqa-webserver.service` config.
 
 ### Start the openqa-webserver as a service
 ```
@@ -82,6 +68,7 @@ The administrator can promote you to `operator` using the administrator's menu i
 `su geekotest; /usr/share/openqa/script/create_admin fake_admin`  
 
 ### Loading Tests  
+Manually login through the web UI and then run this command:  
 ```bash
 /usr/bin/podman exec -it openqa-webserver sh -c 'cd /var/lib/openqa/share/tests/fedora/;
 ./fifloader.py --load  templates.fif.json templates-updates.fif.json'
@@ -102,35 +89,20 @@ Make sure these subdirectories exist on the host in `openqa-consumer/`:
 
 ### Consumer Configuration
 
-In the `openqa-consumer/conf` subdirectory, make a copy of `client.conf` from the template.  
-
-Make a copy of the client.conf.template and fill in host and api keys/secrets.  
-`cp openqa-consumer/conf/client.conf.template openqa-webserver/conf/client.conf`
+1. In the `openqa-consumer/conf` subdirectory, make a copy of `client.conf` from `client.conf.template` and fill in host and api keys/secrets.  
 
 |     client.conf     |    |
 |---------------------|---------------------------------|
 | `[172.31.1.1:8080]` | Authorize `fedora-openqa.py` to schedule tests. It's wrong to use `localhost` since this is the container's localhost.      |  
 
-In the `openqa-consumer/conf` subdirectory, make a copy of `fedora_openqa_scheduler.toml` from the template.
-The init script will automatically change the uuid and in the config each time the consumer is run.  
+2. Also in the `openqa-consumer/conf` subdirectory, make a copy of `fedora_openqa_scheduler.toml` from `fedora_openqa_scheduler.toml.template`.  Optionally to include/exclude the kinds of messages to listen for.
+It's not necessary to change the queue ids, because the init script will automatically change the uuid and in the config each time the consumer is run.  
 
 ### Building openqa-consumer  
-`openqa-consumer/build-consumer-image.sh`    
+`build-consumer-image.sh`    
 
 ### Start the consumer locally
-```bash
-SRV='/home/fedora/openqa-containers/openqa-consumer';
-/usr/bin/podman run --rm -id --name openqa-consumer \
-	-v ${SRV}/conf:/conf/:z \
-	-v ${SRV}/fedora-openqa:/fedora-openqa/:z \
-	-v ${SRV}/fedora-messaging-logs:/fedora-messaging-logs/:z \
-	-v ${SRV}/init_openqa_consumer.sh:/init_openqa_consumer.sh:z \
-	localhost/openqa-consumer:latest /init_openqa_consumer.sh
-```
-Stop it manually:
-```bash
-/usr/bin/podman exec -it openqa-consumer /bin/bash -c "pkill -f fedora-messaging"
-```
+Run the ExecStart command available in the `openqa-consumer.service` config.
 
 ### Start the consumer as a service
 ```bash

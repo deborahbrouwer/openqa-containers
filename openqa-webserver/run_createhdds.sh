@@ -1,4 +1,5 @@
 #!/bin/bash
+# sudo dnf install -y python3-libguestfs  libvirt-devel virt-install fedfind vim git  
 set -e
 
 run_createhdds() {

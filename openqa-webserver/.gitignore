@@ -5,6 +5,4 @@ hdd*
 data*
 tests*
 createhdds*
-conf/*
-!conf/*.template
-!conf/openqa.ini
+conf/client.conf

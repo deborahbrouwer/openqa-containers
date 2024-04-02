@@ -16,9 +16,10 @@ RUN dnf install -y nodejs && \
 RUN npm audit fix || true
 
 RUN dnf install -y openqa-local-db \
-	openqa-httpd mod_ssl mod_proxy_html mod_session \
 	perl-Mojolicious perl-Mojolicious-Plugin-AssetPack \
 	ruby-devel 'rubygem(sass)' python3-jsonschema wget procps-ng
+
+RUN dnf install -y openqa-httpd mod_ssl mod_proxy_html mod_session mod_md
 
 RUN ln -s /etc/httpd/conf.modules.d/00-base.conf /etc/httpd/conf.modules.d/00-base.load
 RUN ln -s /etc/httpd/conf.modules.d/00-ssl.conf /etc/httpd/conf.modules.d/00-ssl.load

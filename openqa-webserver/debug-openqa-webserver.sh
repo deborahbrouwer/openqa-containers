@@ -12,9 +12,6 @@ usage() {
 		exit 1
 }
 
-# For all options, make sure that this script is running from inside the webUI directory.
-# The webUI directory is the context directory for the Dockerfile and is also
-# where the container expects to find assets and files that will be bound in to the container.
 cd $(dirname "$0")
 
 while getopts ":hd:f:s:" opt; do

@@ -94,8 +94,8 @@ Make sure these subdirectories exist on the host in `openqa-consumer/`:
 > Warning: don't use `127.0.0.1` or `localhost`, even if running locally, since this would be the container's localhost.  
 
 * Also in the `openqa-consumer/conf` subdirectory, make a copy of `fedora_openqa_scheduler.toml` from `fedora_openqa_scheduler.toml.template`.
-    - Configure the `openqa_hostname` in `fedora_openqa_scheduler.toml` if not using the default `openqa.fedorainfracloud.org`  
-    - Optionally, edit `fedora_openqa_scheduler.toml`  to include/exclude the kinds of messages to listen for.  It's not necessary to change the queue ids, because `/init_openqa_consumer.sh` will automatically change the uuid and in the config each time the consumer is run.  
+    - Configure the `openqa_hostname`  if not using the default `openqa.fedorainfracloud.org`  
+    - Optionally, edit to include/exclude the kinds of messages to listen for.  It's not necessary to change the queue ids, because `/init_openqa_consumer.sh` will automatically change the uuid and in the config each time the consumer is run.  
 
 ### Building openqa-consumer  
 `build-consumer-image.sh`    

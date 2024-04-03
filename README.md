@@ -17,7 +17,7 @@
     - [Building openqa-consumer](#building-openqa-webserver)
     - [Start the consumer locally](#start-the-container-locally)
     - [Start the consumer as a service](#start-the-container-as-a-service)
-    - [Scheduling Tests Manually](#scheduling-tests-manually)
+    - [Scheduling Tests](#scheduling-tests)
 - [The openqa-worker](#The-openqa-worker)
     - [Worker Configuration](#worker-configuration)
     - [Running workers](#running-workers)
@@ -28,7 +28,7 @@ This repository contains scripts to build and run a containerized deployment of 
 
 # The openqa-webserver  
 
-The openqa-webserver container runs an apache web server on port 8080.  It displays the live test results in a web browser and is also responsible for scheduling tests and the workers to run them; communicating with workers via REST API calls; and enabling interactive editing of tests and needles through the livehandler. The openqa-webserver acts a reverse proxy so that all communications with workers are routed to it through a single port.  
+The openqa-webserver container runs an apache web server for the openQA user interface plus a reverse proxy for communicating with workers running the tests.
 
 ### Host Directories for Webserver
 Make sure these subdirectories exist on the host in `openqa-webserver/`:  
@@ -49,7 +49,8 @@ In the `openqa-webserver/conf` subdirectory copy `client.conf.template` to `clie
 In the subdirectory `openqa-webserver/` run `build-webserver-image.sh`  
 
 ### Start the openqa-webserver locally
-Run the ExecStart command available in the `openqa-webserver.service` config.
+Run the ExecStart command from the `openqa-webserver.service` file  
+> Note add to the podman run command the --detach or --tty option depending on whether you want to see the standard output
 
 ### Start the openqa-webserver as a service
 ```
@@ -89,20 +90,18 @@ Make sure these subdirectories exist on the host in `openqa-consumer/`:
 
 ### Consumer Configuration
 
-1. In the `openqa-consumer/conf` subdirectory, make a copy of `client.conf` from `client.conf.template` and fill in host and api keys/secrets.  
+* In the `openqa-consumer/conf` subdirectory, make a copy of `client.conf` from `client.conf.template` and fill in the host and api keys/secrets.  This will authorize `fedora-openqa.py` to schedule tests.  
+> Warning: don't use `127.0.0.1` or `localhost`, even if running locally, since this would be the container's localhost.  
 
-|     client.conf     |    |
-|---------------------|---------------------------------|
-| `[172.31.1.1:8080]` | Authorize `fedora-openqa.py` to schedule tests. It's wrong to use `localhost` since this is the container's localhost.      |  
-
-2. Also in the `openqa-consumer/conf` subdirectory, make a copy of `fedora_openqa_scheduler.toml` from `fedora_openqa_scheduler.toml.template`.  Optionally to include/exclude the kinds of messages to listen for.
-It's not necessary to change the queue ids, because the init script will automatically change the uuid and in the config each time the consumer is run.  
+* Also in the `openqa-consumer/conf` subdirectory, make a copy of `fedora_openqa_scheduler.toml` from `fedora_openqa_scheduler.toml.template`.
+Optionally, edit  `fedora_openqa_scheduler.toml` to include/exclude the kinds of messages to listen for.  It's not necessary to change the queue ids, because `/init_openqa_consumer.sh` will automatically change the uuid and in the config each time the consumer is run.  
 
 ### Building openqa-consumer  
 `build-consumer-image.sh`    
 
 ### Start the consumer locally
-Run the ExecStart command available in the `openqa-consumer.service` config.
+Run the ExecStart command available in the `openqa-consumer.service` config.  
+> Note add to the podman run command the --detach or --tty option depending on whether you want to see the standard output
 
 ### Start the consumer as a service
 ```bash
@@ -114,8 +113,7 @@ sudo systemctl start openqa-consumer
 
 ### Scheduling Tests
 
-The openqa-consumer container will schedule tests automatically.  To schedule tests manually get a BUILDURL from: 
-[https://openqa.fedoraproject.org/](https://openqa.fedoraproject.org/):   
+The openqa-consumer container will schedule tests automatically.  To schedule tests manually get a BUILDURL from the "Settings" tab of any test by clicking through the test's coloured dot [https://openqa.fedoraproject.org/](https://openqa.fedoraproject.org/):   
 
 ```bash
 podman exec -it openqa-consumer /bin/bash

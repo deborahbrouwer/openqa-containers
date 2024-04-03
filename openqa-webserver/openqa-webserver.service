@@ -2,11 +2,9 @@
 Description=OpenQA Web Server
 
 [Service]
-User=fedora
-Group=fedora
 Environment=SRV='/home/fedora/openqa-containers/openqa-webserver'
 ExecStart=/usr/bin/podman run --rm -i --name openqa-webserver \
-	-p 8080:80 -p 1443:443 \
+	-p 80:80 -p 443:443 \
 	--network=slirp4netns \
 	-v ${SRV}/hdd:/var/lib/openqa/share/factory/hdd:z \
 	-v ${SRV}/iso:/var/lib/openqa/share/factory/iso:z \

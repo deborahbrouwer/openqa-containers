@@ -25,4 +25,3 @@ RUN chown -R _openqa-worker /usr/share/openqa /var/lib/openqa && \
 
 EXPOSE 80 443
 
-ENTRYPOINT ["/init_openqa_worker.sh"]

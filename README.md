@@ -95,8 +95,19 @@ Make sure these subdirectories exist on the host in `openqa-consumer/`:
 
 * Also in the `openqa-consumer/conf` subdirectory, make a copy of `fedora_openqa_scheduler.toml` from `fedora_openqa_scheduler.toml.template`.
     - Configure the `openqa_hostname`  if not using the default `openqa.fedorainfracloud.org`  
-    - Optionally, edit to include/exclude the kinds of messages to listen for.  It's not necessary to change the queue ids, because `/init_openqa_consumer.sh` will automatically change the uuid and in the config each time the consumer is run.  
-
+    - Optionally, edit to include/exclude the kinds of messages to listen for.  It's not necessary to change the queue ids, because `/init_openqa_consumer.sh` will automatically change the uuid and in the config each time the consumer is run.
+ 
+If running without https make sure to tell OpenQA_Client to use http
+```bash
+source /venv/bin/activate
+schedule_path="/fedora-openqa/src/fedora_openqa/schedule.py"
+sed -i 's/client = OpenQA_Client(openqa_hostname)/client = OpenQA_Client(openqa_hostname, scheme='"'"'http'"'"')/' $schedule_path
+```
+then manually reinstall fedora-openqa
+```bash
+pip uninstall fedora-openqa;
+pip install /fedora-openqa;
+```
 ### Building openqa-consumer  
 `build-consumer-image.sh`    
 

@@ -9,7 +9,7 @@ function cleanup() {
 }
 trap cleanup SIGTERM SIGINT
 
-function configure() {
+function configure_openqa() {
   if [ -f "/conf/openqa.ini" ]; then
     rm -rf /etc/openqa/openqa.ini
     ln -s /conf/openqa.ini /etc/openqa/openqa.ini
@@ -19,18 +19,32 @@ function configure() {
     rm -rf /etc/openqa/client.conf
     ln -s /conf/client.conf /etc/openqa/client.conf
   fi
+}
 
-  if [ -f "/conf/openqa-ssl.conf" ]; then
-    ln -s /conf/openqa-ssl.conf /etc/httpd/conf.d/openqa-ssl.conf
+function configure_apache() {
+  sed -i '/#ServerName www.example.com:80/a\ServerName openqa.fedorainfracloud.org' /etc/httpd/conf/httpd.conf
+
+  if [ -f "/conf/privkey.pem" ]; then
+    ln -s /conf/pubcert.pem /etc/pki/tls/certs/pubcert.pem
+    ln -s /conf/privkey.pem /etc/pki/tls/private/privkey.pem
   else
-    cp /etc/httpd/conf.d/openqa-ssl.conf.template /etc/httpd/conf.d/openqa-ssl.conf
+    # If we don't have the certificates, then apache mod_md will get them for us from
+    # MDCertificateAuthority as specified in openqa-ssl.conf
+    # but only if there are no other certificate available, so remove these local host certs
+    # and remember to copy the new certs into the config file
+    # see https://github.com/icing/mod_md
+    echo "Generating new certificates"
+    rm -rf /etc/pki/tls/certs/localhost.crt
+    rm -rf /etc/pki/tls/private/localhost.key
+    sed -i '/SSLCertificateFile/s/^/#/' /etc/httpd/conf.d/ssl.conf
+    sed -i '/SSLCertificateKeyFile/s/^/#/' /etc/httpd/conf.d/ssl.conf
+    sed -i '/SSLCertificateFile/s/^/#/' /conf/openqa-ssl.conf
+    sed -i '/SSLCertificateKeyFile/s/^/#/' /conf/openqa-ssl.conf
   fi
 
-  if [ -f "/conf/openqa.conf" ]; then
-    ln -s /conf/openqa.conf /etc/httpd/conf.d/openqa.conf
-  else
-    cp /etc/httpd/conf.d/openqa.conf.template  /etc/httpd/conf.d/openqa.conf
-  fi
+  ln -s /conf/openqa-ssl.conf /etc/httpd/conf.d/openqa-ssl.conf
+  ln -s /conf/openqa.conf /etc/httpd/conf.d/openqa.conf
+
 }
 
 function upgradedb() {
@@ -44,7 +58,8 @@ function start_services() {
   su geekotest -c /usr/share/openqa/script/openqa-websockets-daemon &
   su geekotest -c /usr/share/openqa/script/openqa-gru &
   su geekotest -c /usr/share/openqa/script/openqa-livehandler-daemon &
-  httpd -DSSL
+  # if apache server fails keep the container alive to look in /etc/httpd/logs
+  httpd -DSSL || true
   su geekotest -c /usr/share/openqa/script/openqa-webui-daemon
 }
 
@@ -72,26 +87,14 @@ function start_database() {
   # TODO: use upgradedb script here if necessary for real data
 }
 
-function add_cert() {
-  # The default crt/key pairs are set in /etc/httpd/conf.d/ssl.conf
-  # Adding /etc/httpd/conf.d/openqa-ssl.conf will override the defaults
-  # openqa-ssl.conf names the crt/keys to use
-
-  # Use defaults until ready to bind in real cert and keys with
-  # -v $PWD/openqa.crt:/etc/pki/tls/certs/openqa.crt:z \
-  # -v $PWD/openqa.key:/etc/pki/tls/private/openqa.key:z \
-    local mojo_resources=$(perl -e 'use Mojolicious; print(Mojolicious->new->home->child("Mojo/IOLoop/resources"))')
-    cp "$mojo_resources"/server.crt /etc/pki/tls/certs/openqa.crt
-    cp "$mojo_resources"/server.key /etc/pki/tls/private/openqa.key
-    cp "$mojo_resources"/server.crt /etc/pki/tls/certs/ca.crt
-}
 
 usermod --shell /bin/sh geekotest
 
 # TODO when quay.io/fedora/fedora images starts using Fedora 40, this can be removed
 dnf -y upgrade --enablerepo=updates-testing --refresh --advisory=FEDORA-2024-b44061e715
 
-configure
+configure_openqa
+configure_apache
 
 chown -R geekotest /usr/share/openqa /var/lib/openqa && \
 	chmod -R a+rw /usr/share/openqa /var/lib/openqa
@@ -120,7 +123,6 @@ fi
 chown -R geekotest /usr/share/openqa /var/lib/openqa && \
 	chmod -R a+rw /usr/share/openqa /var/lib/openqa
 
-add_cert
 start_database
 start_services
 

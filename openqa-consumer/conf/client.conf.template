@@ -1,5 +1,15 @@
 # fedora-openqa.py will take authorization from the first entry here
 # otherwise tell it where to look with --openqa-hostname 172.31.1.1
-[172.31.1.1:8080]
+#
+# If running without https make sure to tell OpenQA_Client to use http
+#  schedule_path="fedora-openqa/src/fedora_openqa/schedule.py"
+#  sed -i 's/client = OpenQA_Client(openqa_hostname)/client = OpenQA_Client(openqa_hostname, scheme='"'"'http'"'"')/' $schedule_path
+#
+# If using a non-standard port include the port here
+# [172.31.1.1:8080]
+#
+# If using https, use the domain name not the ip address
+#
+[openqa.fedorainfracloud.org]
 key = 1234567890ABCDEF
 secret = 1234567890ABCDEF

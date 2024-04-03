@@ -16,18 +16,12 @@ function get_fedora_openqa() {
     # Update any changes to the fedora tests scheduler if available
     git -C "$fedora_openqa_dir" pull || true
   fi
-
-  # temporarily for development purposes just use scheme='http'
-  schedule_path="/fedora-openqa/src/fedora_openqa/schedule.py"
-  if [ -f "$schedule_path" ]; then
-    sed -i 's/client = OpenQA_Client(openqa_hostname)/client = OpenQA_Client(openqa_hostname, scheme='"'"'http'"'"')/' $schedule_path
-  fi
 }
 
 configure() {
-  config_file="/conf/fedora_openqa_scheduler.toml"
-  if [ ! -f "$config_file" ]; then
-      echo "Missing $config_file"
+  scheduler_config_file="/conf/fedora_openqa_scheduler.toml"
+  if [ ! -f "$scheduler_config_file" ]; then
+      echo "Missing $scheduler_config_file"
       exit
   fi
 
@@ -36,31 +30,33 @@ configure() {
   touch "/fedora-messaging-logs/$new_uuid.log"
 
   # editing the config_file directly, not the symlink since editing the symlink will break it
-  sed -i "/^\[queues\.[0-9a-f-]\{36\}\]/s/\[queues\.[0-9a-f-]\{36\}\]/\[queues\.$new_uuid\]/" "$config_file";
-  sed -i "/^queue = \"[0-9a-f-]\{36\}\"/s/queue = \"[0-9a-f-]\{36\}\"/queue = \"$new_uuid\"/" "$config_file";
-  sed -i "s|^filename =.*$|filename = \"/fedora-messaging-logs/$new_uuid.log\"|" "$config_file";
+  # add the unique queue id to the config
+  sed -i "/^\[queues\.[0-9a-f-]\{36\}\]/s/\[queues\.[0-9a-f-]\{36\}\]/\[queues\.$new_uuid\]/" "$scheduler_config_file";
+  sed -i "/^queue = \"[0-9a-f-]\{36\}\"/s/queue = \"[0-9a-f-]\{36\}\"/queue = \"$new_uuid\"/" "$scheduler_config_file";
+  # add the unique log file
+  sed -i "s|^filename =.*$|filename = \"/fedora-messaging-logs/$new_uuid.log\"|" "$scheduler_config_file";
 
-  mkdir -p /venv/etc/
-  symlink="venv/etc/fedora_openqa_scheduler.toml"
-  ln -s "$config_file" $symlink
+  scheduler_symlink="/venv/etc/fedora_openqa_scheduler.toml"
+  ln -s "$scheduler_config_file" $scheduler_symlink
 
-  config_file="/conf/client.conf"
-  if [ ! -f "$config_file" ]; then
-      echo "Missing $config_file"
+  client_config_file="/conf/client.conf"
+  if [ ! -f "$client_config_file" ]; then
+      echo "Missing $client_config_file"
       exit
   fi
-  mkdir -p /etc/openqa/
-  symlink_client="/etc/openqa/client.conf"
-  ln -s "$config_file" $symlink_client
+
+  client_symlink="/etc/openqa/client.conf"
+  ln -s "$client_config_file" $client_symlink
 }
 
 get_fedora_openqa
 rm -rf /fedora-messaging-logs/*
 
+mkdir -p /venv/etc/ /etc/openqa/
 configure
-
 source /venv/bin/activate
+
 pip install "$fedora_openqa_dir"
-/venv/bin/fedora-messaging --conf "$symlink" consume
+/venv/bin/fedora-messaging --conf "$scheduler_symlink" consume
 
 cleanup

@@ -1,0 +1,11 @@
+[Unit]
+Description=OpenQA Workers
+
+[Service]
+Environment=SRV='/home/fedora/openqa-containers/openqa-worker'
+ExecStart=${SRV}/start-openqa-worker.sh
+Restart=no
+ExecStop=${SRV}/stop-openqa-worker.sh
+
+[Install]
+WantedBy=multi-user.target

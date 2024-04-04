@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+REPOSITORY=openqa-worker
+
 tag_old_images() {
 	# Keep the previous image and retag it as "old" and delete any older images
 	while IFS= read -r line; do
@@ -15,6 +17,5 @@ tag_old_images() {
 	done < <(podman images --filter "reference=${REPOSITORY}" --format "{{.Repository}} {{.Tag}} {{.ID}} {{.CreatedAt}}")
 }
 
-REPOSITORY=openqa-worker
 tag_old_images
 podman build --no-cache -t $REPOSITORY .

@@ -18,4 +18,4 @@ tag_old_images() {
 }
 
 tag_old_images
-podman build --no-cache -t $REPOSITORY .
+podman build -t $REPOSITORY .

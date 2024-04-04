@@ -37,8 +37,8 @@ Make sure these subdirectories exist on the host in `openqa-webserver/`:
 * `data/`: the PostgreSQL database where login information as well as test scheduling and results are stored
 * `hdd/`: holds OS images for testing.  Sometimes the images will be downloaded from  `fedoraproject.org` but, in other cases, the images need to be generated on the host using Fedora's [createhdds](https://pagure.io/fedora-qa/createhdds).  If the host machine isn't itself running Fedora, then `createhdds` can't be run and some, but not all, of the tests will fail to execute.  
   Host packages necessary to run createhdds:  
-  `sudo dnf install -y python3-libguestfs  libvirt-devel virt-install fedfind vim git`
-  Helper script to create images for hdd directory:
+  `sudo dnf install -y python3-libguestfs  libvirt-devel virt-install fedfind vim git edk2-ovmf`  
+  Helper script to create images for hdd directory:  
   `./run_createhdds.sh`  
 * `iso/`: holds iso files for testing.
   

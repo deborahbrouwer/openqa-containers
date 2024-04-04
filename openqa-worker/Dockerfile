@@ -1,5 +1,5 @@
 FROM opensuse/tumbleweed
-LABEL title="opensuse_worker"
+LABEL title="openqa-worker"
 
 # RUN dnf install -y openqa openqa-worker python3-jsonschema \
 #     perl-REST-Client procps-ng os-autoinst tunctl iproute
@@ -24,4 +24,3 @@ RUN chown -R _openqa-worker /usr/share/openqa /var/lib/openqa && \
 	find /usr/share/openqa /var/lib/openqa -type d -exec chmod ug+x {} \;
 
 EXPOSE 80 443
-

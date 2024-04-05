@@ -80,11 +80,18 @@ The administrator can promote you to `operator` using the administrator's menu i
 `su geekotest; /usr/share/openqa/script/create_admin fake_admin`  
 
 ### Loading Tests  
-Manually login through the web UI and then run this command:  
+Manually login through the web UI, then load the tests from inside the openqa-webserver container:  
 ```bash
-/usr/bin/podman exec -it openqa-webserver sh -c 'cd /var/lib/openqa/share/tests/fedora/;
-./fifloader.py --load  templates.fif.json templates-updates.fif.json'
+cd /var/lib/openqa/share/tests/fedora/;
+./fifloader.py --load  templates.fif.json templates-updates.fif.json;
 ```
+Reload the tests:  
+```bash
+cd /var/lib/openqa/share/tests/fedora/;
+su geekotest -c "git pull";
+./fifloader.py --load -u  templates.fif.json templates-updates.fif.json
+```
+
 # The openqa-database
 
 # The openqa-consumer 

@@ -15,6 +15,8 @@ if [[ -z $OPENQA_WORKER_INSTANCE ]]; then
 	OPENQA_WORKER_INSTANCE=1
 fi
 
+echo "${CONTAINER_HOST}:${OPENQA_WORKER_INSTANCE}" > /etc/hostname
+
 mkdir -p "/var/lib/openqa/pool/${OPENQA_WORKER_INSTANCE}/"
 chown -R _openqa-worker /var/lib/openqa/pool/
 

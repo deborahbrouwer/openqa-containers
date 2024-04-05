@@ -3,8 +3,7 @@ set -e
 REPOSITORY=openqa-worker
 
 # If running locally, add values e.g.
-# SRV='/home/fedora/openqa-containers/openqa-worker' \
-# DETACHED=yes ./start-openqa-worker.sh
+# SRV='/home/fedora/openqa-containers/openqa-worker' DETACHED=yes ./start-openqa-worker.sh
 
 if [[ -z "$NUMBER_OF_WORKERS" ]]; then
 	NUMBER_OF_WORKERS=10
@@ -95,7 +94,6 @@ for i in $(seq 1 $NUMBER_OF_WORKERS); do
 	fi
 
 	podman run \
-	--init \
 	--rm -i \
 	${detached_arg} \
 	--name openqa-worker-${OPENQA_WORKER_INSTANCE} \
@@ -104,6 +102,7 @@ for i in $(seq 1 $NUMBER_OF_WORKERS); do
 	--pids-limit=-1 \
 	--network=slirp4netns \
 	${vde_arg} \
+	-e CONTAINER_HOST=$(curl -s http://169.254.169.254/latest/meta-data/instance-id) \
 	-e OPENQA_WORKER_INSTANCE=$OPENQA_WORKER_INSTANCE \
 	-e WORKER_CLASS=$WORKER_CLASS \
 	-p $DEVELOPER_MODE_PORT:$DEVELOPER_MODE_PORT \

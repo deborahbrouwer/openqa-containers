@@ -75,8 +75,7 @@ sudo systemctl start openqa-webserver
 Login through the web UI using a Fedora Account.  
 https://accounts.fedoraproject.org  
 
-Initially when you login to the web UI, you are just a `user` without any privileges.  
-The administrator can promote you to `operator` using the administrator's menu in the web UI.  An operator can run and control the tests. There can only be one administrator.  To create the first administrator in a new database, from within the web UI container:    
+To create the first administrator in a new database, from within the openqa-webserver container:    
 `su geekotest; /usr/share/openqa/script/create_admin fake_admin`  
 
 ### Loading Tests  

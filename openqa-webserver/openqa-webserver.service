@@ -3,15 +3,7 @@ Description=OpenQA Web Server
 
 [Service]
 Environment=SRV='/home/fedora/openqa-containers/openqa-webserver'
-ExecStart=/usr/bin/podman run --rm -i --name openqa-webserver \
-	-p 80:80 -p 443:443 \
-	--network=slirp4netns \
-	-v ${SRV}/hdd:/var/lib/openqa/share/factory/hdd:z \
-	-v ${SRV}/iso:/var/lib/openqa/share/factory/iso:z \
-	-v ${SRV}/data:/var/lib/pgsql/data/:z \
-	-v ${SRV}/conf:/conf/:z \
-	-v ${SRV}/init_openqa_web.sh:/init_openqa_web.sh:z \
-	localhost/openqa-webserver:latest /init_openqa_web.sh
+ExecStart=${SRV}/start-openqa-webserver.sh
 Restart=no
 ExecStop=/usr/bin/podman exec -it openqa-webserver /bin/bash -c "pkill -f openqa-webui-daemon"
 

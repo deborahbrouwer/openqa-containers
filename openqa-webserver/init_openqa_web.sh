@@ -22,28 +22,58 @@ function configure_openqa() {
 }
 
 function configure_apache() {
-  sed -i '/#ServerName www.example.com:80/a\ServerName openqa.fedorainfracloud.org' /etc/httpd/conf/httpd.conf
-
   if [ -f "/conf/privkey.pem" ]; then
+    # Production configuration
     ln -s /conf/pubcert.pem /etc/pki/tls/certs/pubcert.pem
     ln -s /conf/privkey.pem /etc/pki/tls/private/privkey.pem
+
+    sed -i '/#ServerName www.example.com:80/a\ServerName openqa.fedorainfracloud.org' /etc/httpd/conf/httpd.conf
+
+    # Use the configs that include mod_md
+    ln -s /conf/openqa-ssl.conf /etc/httpd/conf.d/openqa-ssl.conf
+    ln -s /conf/openqa.conf /etc/httpd/conf.d/openqa.conf
   else
-    # If we don't have the certificates, then apache mod_md will get them for us from
-    # MDCertificateAuthority as specified in openqa-ssl.conf
-    # but only if there are no other certificate available, so remove these local host certs
-    # and remember to copy the new certs into the config file
-    # see https://github.com/icing/mod_md
+    # Local configuration
+    echo "Using local SSL/TLS certificates"
+    cp /etc/httpd/conf.d/openqa.conf.template /etc/httpd/conf.d/openqa.conf
+    cp /etc/httpd/conf.d/openqa-ssl.conf.template /etc/httpd/conf.d/openqa-ssl.conf
+    sed -i 's/^\s*#SSLCertificateFile/SSLCertificateFile/' /etc/httpd/conf.d/openqa-ssl.conf
+    sed -i 's/^\s*#SSLCertificateKeyFile/SSLCertificateKeyFile/' /etc/httpd/conf.d/openqa-ssl.conf
+    sed -i 's/^\s*#SSLCertificateChainFile/SSLCertificateChainFile/' /etc/httpd/conf.d/openqa-ssl.conf
+
+    local mojo_resources=$(perl -e 'use Mojolicious; print(Mojolicious->new->home->child("Mojo/IOLoop/resources"))')
+    cp "$mojo_resources"/server.crt /etc/pki/tls/certs/openqa.crt
+    cp "$mojo_resources"/server.key /etc/pki/tls/private/openqa.key
+    cp "$mojo_resources"/server.crt /etc/pki/tls/certs/ca.crt
+  fi
+
+  # For convenience, this is the option to generate certs for production configuration,
+  # but it wouldn't usually be needed
+  if [[ "$GENERATE_CERTS" == "true" ]] || [[ "$GENERATE_CERTS" == "yes" ]]; then
     echo "Generating new certificates"
+    sed -i '/#ServerName www.example.com:80/a\ServerName openqa.fedorainfracloud.org' /etc/httpd/conf/httpd.conf
+
+    # Use the configs that include mod_md
+    ln -s /conf/openqa-ssl.conf /etc/httpd/conf.d/openqa-ssl.conf
+    ln -s /conf/openqa.conf /etc/httpd/conf.d/openqa.conf
+
+    # Apache mod_md will request them the configs from the MDCertificateAuthority as
+    # specified in openqa-ssl.conf but only if there are no other certificates available,
+
+    # remove localhost cert
     rm -rf /etc/pki/tls/certs/localhost.crt
     rm -rf /etc/pki/tls/private/localhost.key
     sed -i '/SSLCertificateFile/s/^/#/' /etc/httpd/conf.d/ssl.conf
     sed -i '/SSLCertificateKeyFile/s/^/#/' /etc/httpd/conf.d/ssl.conf
+
+    # don't look for pubcert
     sed -i '/SSLCertificateFile/s/^/#/' /conf/openqa-ssl.conf
     sed -i '/SSLCertificateKeyFile/s/^/#/' /conf/openqa-ssl.conf
-  fi
 
-  ln -s /conf/openqa-ssl.conf /etc/httpd/conf.d/openqa-ssl.conf
-  ln -s /conf/openqa.conf /etc/httpd/conf.d/openqa.conf
+    # New certs will be in /var/lib/httpd/md/domains/openqa.fedorainfracloud.org/
+    # Copy them outside of the container to bind them in again later
+    # see https://github.com/icing/mod_md
+  fi
 
 }
 
@@ -58,7 +88,7 @@ function start_services() {
   su geekotest -c /usr/share/openqa/script/openqa-websockets-daemon &
   su geekotest -c /usr/share/openqa/script/openqa-gru &
   su geekotest -c /usr/share/openqa/script/openqa-livehandler-daemon &
-  # if apache server fails keep the container alive to look in /etc/httpd/logs
+  # if apache server fails look in /etc/httpd/logs
   httpd -DSSL || true
   su geekotest -c /usr/share/openqa/script/openqa-webui-daemon
 }
@@ -86,7 +116,6 @@ function start_database() {
 
   # TODO: use upgradedb script here if necessary for real data
 }
-
 
 usermod --shell /bin/sh geekotest
 

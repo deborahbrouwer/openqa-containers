@@ -117,6 +117,7 @@ if [ ! -d "$test_dir" ]; then
     /usr/share/openqa/script/fetchneedles; \
     git config --global --add safe.directory /var/lib/openqa/share/tests/fedora"
 else
+  su geekotest -d "git config --global --add safe.directory '$test_dir'" || true
   su geekotest -c "git -C '$test_dir' pull" || true
 fi
 

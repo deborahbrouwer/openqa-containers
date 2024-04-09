@@ -1,5 +1,4 @@
 iso/*
-!iso/cloudinit.iso
 hdd*
 !hdd/.gitkeep
 data*

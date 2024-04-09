@@ -12,6 +12,8 @@ if [ ! -d "${SRV}/iso" ] && [ ! -L "${SRV}}/iso" ]; then
 	mkdir "${SRV}/iso"
 fi
 
+cp "${SRV}/cloudinit.iso" "${SRV}/iso/"
+
 if [ ! -d "${SRV}/data" ] && [ ! -L "${SRV}}/data" ]; then
 	echo "Missing ${SRV}/data"
     exit

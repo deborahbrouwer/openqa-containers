@@ -1,5 +1,7 @@
 #!/bin/bash
 # sudo dnf install -y python3-libguestfs  libvirt-devel virt-install fedfind vim git  
+# rsync -avz --sparse fedora@<sourceip>:<source dir> <dest dir>
+
 set -e
 
 run_createhdds() {

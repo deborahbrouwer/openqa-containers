@@ -24,6 +24,8 @@ function configure_openqa() {
 function configure_apache() {
   if [ -f "/conf/privkey.pem" ]; then
     # Production configuration
+    echo "Using production SSL/TLS certificates"
+
     ln -s /conf/pubcert.pem /etc/pki/tls/certs/pubcert.pem
     ln -s /conf/privkey.pem /etc/pki/tls/private/privkey.pem
 
@@ -35,6 +37,7 @@ function configure_apache() {
   else
     # Local configuration
     echo "Using local SSL/TLS certificates"
+
     cp /etc/httpd/conf.d/openqa.conf.template /etc/httpd/conf.d/openqa.conf
     cp /etc/httpd/conf.d/openqa-ssl.conf.template /etc/httpd/conf.d/openqa-ssl.conf
     sed -i 's/^\s*#SSLCertificateFile/SSLCertificateFile/' /etc/httpd/conf.d/openqa-ssl.conf

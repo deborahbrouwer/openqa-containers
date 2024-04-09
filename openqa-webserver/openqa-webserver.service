@@ -3,7 +3,7 @@ Description=OpenQA Web Server
 
 [Service]
 Environment=SRV='/home/fedora/openqa-containers/openqa-webserver'
-ExecStart=${SRV}/start-openqa-webserver.sh
+ExecStart=/usr/bin/start-openqa-webserver.sh
 Restart=no
 ExecStop=/usr/bin/podman exec -it openqa-webserver /bin/bash -c "pkill -f openqa-webui-daemon"
 

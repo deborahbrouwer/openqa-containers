@@ -31,7 +31,7 @@ if [[ "$LOCAL_PORTS" == "true" ]] || [[ "$LOCAL_PORTS" == "yes" ]]; then
     ports_arg="-p 8080:80 -p 1443:443"
 fi
 
-/usr/bin/podman run --rm -i --name openqa-webserver \
+podman run --rm -i --name openqa-webserver \
 	${ports_arg} \
 	${detached_arg} \
 	--network=slirp4netns \

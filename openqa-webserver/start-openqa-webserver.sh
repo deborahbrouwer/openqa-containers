@@ -3,6 +3,7 @@
 # SRV='/home/fedora/openqa-containers/openqa-webserver' DETACHED=yes LOCAL_PORTS=yes ./start-openqa-webserver.sh
 
 set -e
+IMAGE=localhost/openqa-webserver:latest
 
 if [ ! -d "${SRV}/hdd" ] && [ ! -L "${SRV}}/hdd" ]; then
 	mkdir "${SRV}/hdd"
@@ -24,6 +25,11 @@ if [ ! -f "${SRV}/conf/client.conf" ]; then
     exit
 fi
 
+if [[ -z $(podman images --format "{{.Tag}}" $IMAGE) ]]; then
+    echo "$IMAGE is missing"
+	exit
+fi
+
 if [[ "$DETACHED" == "true" ]] || [[ "$DETACHED" == "yes" ]]; then
     detached_arg="-d"
 fi
@@ -43,5 +49,5 @@ podman run --rm -i --name openqa-webserver \
 	-v ${SRV}/data:/var/lib/pgsql/data/:z \
 	-v ${SRV}/conf:/conf/:z \
 	-v ${SRV}/init_openqa_web.sh:/init_openqa_web.sh:z \
-	localhost/openqa-webserver:latest /init_openqa_web.sh
+	$IMAGE /init_openqa_web.sh
 

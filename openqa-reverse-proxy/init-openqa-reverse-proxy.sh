@@ -33,7 +33,7 @@ function configure_apache() {
 }
 
 # RUN dnf install -y openqa-httpd mod_ssl mod_proxy_html mod_session mod_md
-dnf install -y mod_md perl perl-Mojolicious procps-ng
+dnf install -y mod_md perl perl-Mojolicious procps-ng mod_proxy_html
 ln -s /etc/httpd/conf.modules.d/00-base.conf /etc/httpd/conf.modules.d/00-base.load
 ln -s /etc/httpd/conf.modules.d/00-ssl.conf /etc/httpd/conf.modules.d/00-ssl.load
 /usr/libexec/httpd-ssl-gencerts

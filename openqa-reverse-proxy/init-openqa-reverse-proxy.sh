@@ -34,6 +34,12 @@ function configure_apache() {
 
 # RUN dnf install -y openqa-httpd mod_ssl mod_proxy_html mod_session mod_md
 dnf install -y mod_md perl perl-Mojolicious procps-ng mod_proxy_html
+
+
+ln -s /conf/openqa-proxy-ssl.conf /etc/httpd/conf.d/openqa-proxy-ssl.conf
+ln -s /conf/openqa-proxy.conf /etc/httpd/conf.d/openqa-proxy.conf
+ln -s /conf/openqa-proxy-common.inc /etc/httpd/conf.d/openqa-proxy-common.inc
+
 ln -s /etc/httpd/conf.modules.d/00-base.conf /etc/httpd/conf.modules.d/00-base.load
 ln -s /etc/httpd/conf.modules.d/00-ssl.conf /etc/httpd/conf.modules.d/00-ssl.load
 /usr/libexec/httpd-ssl-gencerts
@@ -41,11 +47,6 @@ ln -s /etc/httpd/conf.modules.d/00-ssl.conf /etc/httpd/conf.modules.d/00-ssl.loa
 configure_apache
 
 httpd -DSSL || true
-while true; do
-    sleep 6000
-done
 
-configure_apache
-# httpd -DSSL
-
+/bin/bash
 cleanup

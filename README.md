@@ -36,8 +36,8 @@ Use the reverse-proxy container to expose standard HTTP and HTTPS ports.  It is 
 
 ### Start the openqa-reverse-proxy as a service
 ```
-sudo cp openqa-reverse-proxy.service /etc/systemd/system/;
-sudo cp start-openqa-reverse-proxy.sh /usr/bin/;
+sudo cp /home/fedora/openqa-containers/openqa-reverse-proxy/openqa-reverse-proxy.service /etc/systemd/system/;
+sudo cp /home/fedora/openqa-containers/openqa-reverse-proxy/start-openqa-reverse-proxy.sh /usr/bin/;
 sudo systemctl daemon-reload;
 sudo systemctl start openqa-reverse-proxy.service;
 ```

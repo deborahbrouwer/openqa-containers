@@ -1,6 +1,6 @@
 #!/bin/bash
-# If running locally, add values e.g.
-# SRV='/home/fedora/openqa-containers/openqa-webserver' DETACHED=yes LOCAL_PORTS=yes ./start-openqa-webserver.sh
+# If running locally, define values e.g.
+# SRV='/home/fedora/openqa-containers/openqa-webserver' DETACHED=yes ./start-openqa-webserver.sh
 
 set -e
 IMAGE=localhost/openqa-webserver:latest
@@ -34,13 +34,8 @@ if [[ "$DETACHED" == "true" ]] || [[ "$DETACHED" == "yes" ]]; then
     detached_arg="-d"
 fi
 
-ports_arg="-p 80:80 -p 443:443"
-if [[ "$LOCAL_PORTS" == "true" ]] || [[ "$LOCAL_PORTS" == "yes" ]]; then
-    ports_arg="-p 8080:80 -p 1443:443"
-fi
-
 podman run --rm -i --name openqa-webserver \
-	${ports_arg} \
+	-p 8080:80 -p 1443:443 \
 	${detached_arg} \
 	--network=slirp4netns \
 	-e GENERATE_CERTS=$GENERATE_CERTS \

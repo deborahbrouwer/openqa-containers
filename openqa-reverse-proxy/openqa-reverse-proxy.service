@@ -6,13 +6,13 @@ Environment=SRV='/home/fedora/openqa-containers/openqa-reverse-proxy'
 ExecStart=/usr/bin/podman run --rm -i --name openqa-reverse-proxy \
 	-p 80:80 -p 443:443 \
 	--user=root \
-	-e GENERATE_CERTS=$GENERATE_CERTS \
 	-v ${SRV}/conf:/conf/:z \
 	-v ${SRV}/logs:/etc/httpd/logs/:z \
+	-v ${SRV}/generate-certificate.sh:/generate-certificate.sh:z \
 	-v ${SRV}/init-openqa-reverse-proxy.sh:/init-openqa-reverse-proxy.sh:z \
 	quay.io/fedora/httpd-24:latest /init-openqa-reverse-proxy.sh
 
-Restart=no
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

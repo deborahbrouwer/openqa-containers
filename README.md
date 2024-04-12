@@ -81,9 +81,14 @@ Run the ExecStart command from the `openqa-webserver.service` file
 > Note add to the podman run command the --detach or --tty option depending on whether you want to see the standard output
 
 ### Start the openqa-webserver as a service
+
+webserver runs as `fedora` user so make sure that the user will survive closing the session
+`sudo loginctl enable-linger fedora`  
+
 ```
-sudo cp openqa-webserver.service /etc/systemd/system/
-sudo loginctl enable-linger <user>
+sudo cp openqa-webserver.service /etc/systemd/system/;
+sudo cp start-openqa-webserver.sh /usr/bin/start-openqa-webserver.sh;
+
 sudo systemctl daemon-reload
 sudo systemctl start openqa-webserver
 ```

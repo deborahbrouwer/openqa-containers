@@ -2,6 +2,8 @@
 ## Table of Contents
 
 - [About](#about)
+- [The openqa-reverse-proxy](#The-openqa-reverse-proxy)
+    - [Start the openqa-webserver as a service](#start-the-openqa-webserver-as-a-service)
 - [The openqa-webserver](#The-openqa-webserver)
     - [Host Directories for Webserver](#host-directories-for-webserver)
     - [Web Configuration](#web-configuration)
@@ -25,6 +27,20 @@
 
 # About  
 This repository contains scripts to build and run a containerized deployment of [openQA](https://github.com/os-autoinst).  The containers are specifically designed to leverage cloud resources and are customized to support [Fedora](https://fedoraproject.org/wiki/OpenQA) release and update testing. 
+
+# The openqa-reverse-proxy  
+
+Use the reverse-proxy container to expose standard HTTP and HTTPS ports.  It is the only container that needs to be run as root.  It's not necessary to run this container if you're running this locally or without ssl/tls certificates and can use non-priviledged ports instead.  
+
+
+
+### Start the openqa-reverse-proxy as a service
+```
+sudo cp openqa-reverse-proxy.service /etc/systemd/system/;
+sudo cp start-openqa-reverse-proxy.sh /usr/bin/;
+sudo systemctl daemon-reload;
+sudo systemctl start openqa-reverse-proxy.service;
+```
 
 # The openqa-webserver  
 

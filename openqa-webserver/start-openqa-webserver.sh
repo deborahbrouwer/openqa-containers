@@ -5,15 +5,15 @@
 set -e
 IMAGE=localhost/openqa-webserver:latest
 
-if [ ! -d "${SRV}/hdd" ] && [ ! -L "${SRV}}/hdd" ]; then
-	mkdir "${SRV}/hdd"
+if [ ! -d "${SRV}/hdd/fixed" ] && [ ! -L "${SRV}}/hdd/fixed" ]; then
+	mkdir -p "${SRV}/hdd/fixed"
 fi
 
-if [ ! -d "${SRV}/iso" ] && [ ! -L "${SRV}}/iso" ]; then
-	mkdir "${SRV}/iso"
+if [ ! -d "${SRV}/iso/fixed" ] && [ ! -L "${SRV}}/iso/fixed" ]; then
+	mkdir -p "${SRV}/iso/fixed"
 fi
 
-cp "${SRV}/cloudinit.iso" "${SRV}/iso/"
+cp "${SRV}/cloudinit.iso" "${SRV}/iso/fixed"
 
 if [ ! -d "${SRV}/data" ] && [ ! -L "${SRV}}/data" ]; then
 	echo "Missing ${SRV}/data"

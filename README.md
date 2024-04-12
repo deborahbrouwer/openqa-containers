@@ -3,7 +3,7 @@
 
 - [About](#about)
 - [The openqa-reverse-proxy](#The-openqa-reverse-proxy)
-    - [Start the openqa-webserver as a service](#start-the-openqa-webserver-as-a-service)
+    - [Start the openqa-reverse-proxy as a service](#start-the-openqa-reverse-proxy-as-a-service)
 - [The openqa-webserver](#The-openqa-webserver)
     - [Host Directories for Webserver](#host-directories-for-webserver)
     - [Web Configuration](#web-configuration)

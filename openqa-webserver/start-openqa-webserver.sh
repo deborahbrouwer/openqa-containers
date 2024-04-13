@@ -38,7 +38,6 @@ podman run --rm -i --name openqa-webserver \
 	-p 8080:80 -p 1443:443 \
 	${detached_arg} \
 	--network=slirp4netns \
-	-e GENERATE_CERTS=$GENERATE_CERTS \
 	-v ${SRV}/hdd:/var/lib/openqa/share/factory/hdd:z \
 	-v ${SRV}/iso:/var/lib/openqa/share/factory/iso:z \
 	-v ${SRV}/data:/var/lib/pgsql/data/:z \

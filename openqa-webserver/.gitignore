@@ -1,5 +1,6 @@
 iso/*
 hdd*
+logs/*
 !hdd/.gitkeep
 data*
 tests*

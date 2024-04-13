@@ -4,11 +4,13 @@
 
 Listen *:443
 
-LoadModule md_module modules/mod_md.so
-LoadModule ssl_module modules/mod_ssl.so
-LoadModule watchdog_module modules/mod_watchdog.so
+# LoadModule md_module modules/mod_md.so
+# LoadModule ssl_module modules/mod_ssl.so
+# LoadModule watchdog_module modules/mod_watchdog.so
 
-# To actually generate a new certificate, run "generate-certificate.sh" inside the openqa-webserver container
+# To acquire a new certificate, run "generate-certificate.sh" inside the openqa-webserver container
+#
+# mod_md will request the new certificate
 # See https://github.com/icing/mod_md
 # The default authority is:
 #   MDCertificateAuthority https://acme-v02.api.letsencrypt.org/directory
@@ -27,13 +29,14 @@ LoadModule watchdog_module modules/mod_watchdog.so
 
 <VirtualHost *:443>
 
-#   ServerName openqa.fedorainfracloud.org
+ServerName openqa.fedorainfracloud.org
     SSLEngine on
-    SSLCertificateFile /etc/httpd/conf.d/localhost.crt
-    SSLCertificateKeyFile /etc/httpd/conf.d/localhost.key
+    SSLCertificateFile /etc/httpd/conf.d/pubcert.pem
+    SSLCertificateKeyFile /etc/httpd/conf.d/privkey.pem
+    # SSLCertificateKeyFile /etc/httpd/conf.d/privkey.pem
 
-    ProxyPass / http://10.0.23.162:1443/
-    ProxyPassReverse / http://10.0.23.162:1443/
+    ProxyPass / http://172.1.1.1:8080/ keepalive=On
+    ProxyPassReverse / http://172.1.1.1:8080/
 
 </VirtualHost>
 

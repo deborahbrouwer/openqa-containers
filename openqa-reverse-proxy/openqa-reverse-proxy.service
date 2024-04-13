@@ -3,16 +3,9 @@ Description=OpenQA Reverse Proxy for Web Server
 
 [Service]
 Environment=SRV='/home/fedora/openqa-containers/openqa-reverse-proxy'
-ExecStart=/usr/bin/podman run --rm -i --name openqa-reverse-proxy \
-	-p 80:80 -p 443:443 \
-	--user=root \
-	-v ${SRV}/conf:/conf/:z \
-	-v ${SRV}/logs:/etc/httpd/logs/:z \
-	-v ${SRV}/generate-certificate.sh:/generate-certificate.sh:z \
-	-v ${SRV}/init-openqa-reverse-proxy.sh:/init-openqa-reverse-proxy.sh:z \
-	quay.io/fedora/httpd-24:latest /init-openqa-reverse-proxy.sh
-
-Restart=always
+ExecStart=/usr/bin/start-openqa-reverse-proxy.sh
+Restart=no
+ExecStop=/usr/bin/podman exec openqa-reverse-proxy /bin/bash -c "pkill -f tail"
 
 [Install]
 WantedBy=multi-user.target

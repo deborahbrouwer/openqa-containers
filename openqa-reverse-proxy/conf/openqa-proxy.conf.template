@@ -1,0 +1,10 @@
+Listen *:80
+
+<VirtualHost *:80>
+
+ServerName openqa.fedorainfracloud.org
+    ProxyPass / http://10.0.23.162:8080/ keepalive=On
+    ProxyPassReverse / http://10.0.23.162:8080/
+
+</VirtualHost>
+

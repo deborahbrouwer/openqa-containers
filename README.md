@@ -86,11 +86,10 @@ webserver runs as `fedora` user so make sure that the user will survive closing 
 `sudo loginctl enable-linger fedora`  
 
 ```
-sudo cp openqa-webserver.service /etc/systemd/system/;
-sudo cp start-openqa-webserver.sh /usr/bin/start-openqa-webserver.sh;
-
-sudo systemctl daemon-reload
-sudo systemctl start openqa-webserver
+sudo cp /home/fedora/openqa-containers/openqa-webserver/openqa-webserver.service /etc/systemd/system/;
+sudo cp /home/fedora/openqa-containers/openqa-webserver/start-openqa-webserver.sh /usr/bin/start-openqa-webserver.sh;
+sudo systemctl daemon-reload;
+sudo systemctl start openqa-webserver;
 ```
 
 ### Login

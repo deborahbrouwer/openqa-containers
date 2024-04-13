@@ -10,46 +10,14 @@ function cleanup() {
 trap cleanup SIGTERM SIGINT
 
 function configure_openqa() {
-  if [ -f "/conf/openqa.ini" ]; then
-    rm -rf /etc/openqa/openqa.ini
-    ln -s /conf/openqa.ini /etc/openqa/openqa.ini
-  fi
+  rm -rf /etc/openqa/openqa.ini
+  ln -s /conf/openqa.ini /etc/openqa/openqa.ini
 
-  if [ -f "/conf/client.conf" ]; then
-    rm -rf /etc/openqa/client.conf
-    ln -s /conf/client.conf /etc/openqa/client.conf
-  fi
-}
+  rm -rf /etc/openqa/client.conf
+  ln -s /conf/client.conf /etc/openqa/client.conf
 
-function configure_apache() {
-  if [ -f "/conf/privkey.pem" ]; then
-    # Production configuration
-    echo "Using production SSL/TLS certificates"
-
-    ln -s /conf/pubcert.pem /etc/pki/tls/certs/pubcert.pem
-    ln -s /conf/privkey.pem /etc/pki/tls/private/privkey.pem
-
-    sed -i '/#ServerName www.example.com:80/a\ServerName openqa.fedorainfracloud.org' /etc/httpd/conf/httpd.conf
-
-    # Use the configs that include mod_md
-    ln -s /conf/openqa-ssl.conf /etc/httpd/conf.d/openqa-ssl.conf
-    ln -s /conf/openqa.conf /etc/httpd/conf.d/openqa.conf
-  else
-    # Local configuration
-    echo "Using local SSL/TLS certificates"
-
-    cp /etc/httpd/conf.d/openqa.conf.template /etc/httpd/conf.d/openqa.conf
-    cp /etc/httpd/conf.d/openqa-ssl.conf.template /etc/httpd/conf.d/openqa-ssl.conf
-    sed -i 's/^\s*#SSLCertificateFile/SSLCertificateFile/' /etc/httpd/conf.d/openqa-ssl.conf
-    sed -i 's/^\s*#SSLCertificateKeyFile/SSLCertificateKeyFile/' /etc/httpd/conf.d/openqa-ssl.conf
-    sed -i 's/^\s*#SSLCertificateChainFile/SSLCertificateChainFile/' /etc/httpd/conf.d/openqa-ssl.conf
-
-    local mojo_resources=$(perl -e 'use Mojolicious; print(Mojolicious->new->home->child("Mojo/IOLoop/resources"))')
-    cp "$mojo_resources"/server.crt /etc/pki/tls/certs/openqa.crt
-    cp "$mojo_resources"/server.key /etc/pki/tls/private/openqa.key
-    cp "$mojo_resources"/server.crt /etc/pki/tls/certs/ca.crt
-  fi
-
+  # This config includes /etc/httpd/conf.d/openqa-common.inc which sets the openQA Document Root for web
+  ln -s /conf/openqa.conf /etc/httpd/conf.d/openqa.conf
 }
 
 function upgradedb() {
@@ -64,7 +32,7 @@ function start_services() {
   su geekotest -c /usr/share/openqa/script/openqa-gru &
   su geekotest -c /usr/share/openqa/script/openqa-livehandler-daemon &
   # if apache server fails look in /etc/httpd/logs
-  httpd -DSSL || true
+  httpd -DNOSSL || true
   su geekotest -c /usr/share/openqa/script/openqa-webui-daemon
 }
 
@@ -98,7 +66,6 @@ usermod --shell /bin/sh geekotest
 dnf -y upgrade --enablerepo=updates-testing --refresh --advisory=FEDORA-2024-b44061e715
 
 configure_openqa
-configure_apache
 
 chown -R geekotest /usr/share/openqa /var/lib/openqa && \
 	chmod -R a+rw /usr/share/openqa /var/lib/openqa

@@ -20,6 +20,11 @@ if [ ! -d "${SRV}/data" ] && [ ! -L "${SRV}}/data" ]; then
     exit
 fi
 
+if [ ! -f "${SRV}/conf/openqa.ini" ]; then
+	echo "Missing ${SRV}/conf/openqa.ini"
+    exit
+fi
+
 if [ ! -f "${SRV}/conf/client.conf" ]; then
 	echo "Missing ${SRV}/conf/client.conf"
     exit
@@ -35,7 +40,7 @@ if [[ "$DETACHED" == "true" ]] || [[ "$DETACHED" == "yes" ]]; then
 fi
 
 podman run --rm -i --name openqa-webserver \
-	-p 8080:80 -p 1443:443 \
+	-p 8080:80 \
 	${detached_arg} \
 	--network=slirp4netns \
 	-v ${SRV}/hdd:/var/lib/openqa/share/factory/hdd:z \

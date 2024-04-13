@@ -2,6 +2,8 @@
 Description=OpenQA Web Server
 
 [Service]
+User=fedora
+Group=fedora
 Environment=SRV='/home/fedora/openqa-containers/openqa-webserver'
 ExecStart=/usr/bin/start-openqa-webserver.sh
 Restart=no

@@ -11,7 +11,7 @@ ExecStart=/usr/bin/podman run --rm -i --name openqa-consumer \
 	-v ${SRV}/fedora-messaging-logs:/fedora-messaging-logs/:z \
 	-v ${SRV}/init_openqa_consumer.sh:/init_openqa_consumer.sh:z \
 	localhost/openqa-consumer:latest /init_openqa_consumer.sh
-Restart=always
+Restart=on-failure
 ExecStop=/usr/bin/podman exec -it openqa-consumer /bin/bash -c "pkill -f fedora-messaging"
 
 [Install]

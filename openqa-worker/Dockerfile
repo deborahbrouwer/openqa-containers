@@ -23,4 +23,5 @@ RUN chown -R _openqa-worker /usr/share/openqa /var/lib/openqa && \
 	chmod ug+rw /usr/share/openqa /var/lib/openqa && \
 	find /usr/share/openqa /var/lib/openqa -type d -exec chmod ug+x {} \;
 
-EXPOSE 80 443
+# create a directory to hold the configurations bound in from host
+RUN mkdir /conf

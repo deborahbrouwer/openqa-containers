@@ -9,7 +9,8 @@ function cleanup() {
 }
 trap cleanup SIGTERM SIGINT
 
-# update the openqa package
+ln -s /conf/client.conf /etc/openqa/client.conf
+ln -s /conf/workers.ini /etc/openqa/workers.ini
 
 if [[ -z $OPENQA_WORKER_INSTANCE ]]; then
 	OPENQA_WORKER_INSTANCE=1

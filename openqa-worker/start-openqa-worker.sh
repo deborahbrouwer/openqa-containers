@@ -1,6 +1,7 @@
 #!/bin/bash
-# If running locally, add values e.g.
-# DETACHED=yes ./start-openqa-worker.sh
+# If running locally, define values e.g.
+# KEEP_EXISTING_WORKERS=yes NUMBER_OF_WORKERS=3 ./start-openqa-worker.sh
+# NUMBER_OF_WORKERS=0 ./start-openqa-worker.sh
 
 set -e
 IMAGE=localhost/openqa-worker:latest
@@ -29,12 +30,47 @@ if [ ! -d "${SRV}/tests" ] && [ ! -L "${SRV}}/tests" ]; then
 	mkdir "${SRV}/tests"
 fi
 
+# Stop any existing workers unless KEEP_EXISTING_WORKERS=true is defined
+if [[ -z "$KEEP_EXISTING_WORKERS" ]]; then
+	# Find all the existing openqa_worker containers on this machine
+	mapfile -t worker_container_ids < <(podman ps -q --format "{{.Image}} {{.ID}}" | grep "$REPOSITORY" | awk '{print $2}')
+
+	# Stop all the workers gracefully, by giving them the opportunity to tell the scheduler
+	# that they are going offline. Otherwise scheduler will keep trying to send tests to non-existent workers.
+
+	if [ -z $WORKER_CLASS ]; then
+		for container_id in "${worker_container_ids[@]}"; do
+			process_id=$(podman exec "$container_id" pgrep -f 'perl /usr/share/openqa/script/worker' | head -n 1)
+			podman exec -it $container_id sh -c "kill $process_id"
+			echo "killed $container_id"
+		done
+	else
+		# if a WORKER_CLASS is set, then stop only those workers
+		BUILD=$(echo "$WORKER_CLASS" | grep -o 'vde_[^,]*' | cut -d'_' -f2-)
+		matching_container_ids=($(podman ps -a --format "{{.Names}}" | grep "$BUILD" | grep -v "qa-switch"))
+		for container_id in "${matching_container_ids[@]}"; do
+			actual_container_id=$(podman ps -a --filter "name=$container_id" --format "{{.ID}}")
+			process_id=$(podman exec "$actual_container_id" pgrep -f 'perl /usr/share/openqa/script/worker' | head -n 1)
+			podman exec -it "$actual_container_id" sh -c "kill $process_id"
+			echo "killed $actual_container_id"
+		done
+	fi
+	sleep 10
+	echo "Should be 0 now:"
+	echo $(podman ps -a)
+fi
+
+if [[ "$NUMBER_OF_WORKERS" == '0' ]]; then
+	exit
+fi
+
 if [[ -z "$NUMBER_OF_WORKERS" ]]; then
 	NUMBER_OF_WORKERS=10
 fi
 
-if [[ "$DETACHED" == "true" ]] || [[ "$DETACHED" == "yes" ]]; then
-	detached_arg="-d"
+detached_arg="-d"
+if [[ "$DETACHED" == "false" ]] || [[ "$DETACHED" == "no" ]]; then
+	detached_arg=""
 fi
 
 if [ -z $WORKER_CLASS ]; then
@@ -135,3 +171,4 @@ for i in $(seq 1 $NUMBER_OF_WORKERS); do
 	((OPENQA_WORKER_INSTANCE++))
 done
 
+exit 0

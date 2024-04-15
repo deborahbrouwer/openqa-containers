@@ -1,11 +1,12 @@
 [Unit]
-Description=OpenQA Workers
+Description=OpenQA Workers: stop existing workers and start new ones
 
 [Service]
+User=fedora
+Group=fedora
 Environment=SRV='/home/fedora/openqa-containers/openqa-worker'
-ExecStart=${SRV}/start-openqa-worker.sh
-Restart=no
-ExecStop=${SRV}/stop-openqa-worker.sh
+Environment=NUMBER_OF_WORKERS='10'
+ExecStart=/usr/bin/start-openqa-worker.sh
 
 [Install]
 WantedBy=multi-user.target

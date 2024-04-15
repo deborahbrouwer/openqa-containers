@@ -9,6 +9,8 @@ function cleanup() {
 }
 trap cleanup SIGTERM SIGINT
 
+# Replace package configs with custom configs
+rm /etc/openqa/client.conf /etc/openqa/workers.ini -rf
 ln -s /conf/client.conf /etc/openqa/client.conf
 ln -s /conf/workers.ini /etc/openqa/workers.ini
 

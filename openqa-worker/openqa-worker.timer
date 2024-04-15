@@ -1,0 +1,13 @@
+[Unit]
+Description=OpenQA Workers: timer to restart all workers
+
+[Service]
+User=fedora
+Group=fedora
+
+[Timer]
+OnUnitInactiveSec=12 h
+Unit=openqa-worker.service
+
+[Install]
+WantedBy=timers.target

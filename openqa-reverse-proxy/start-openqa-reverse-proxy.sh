@@ -1,9 +1,15 @@
 #!/bin/bash
 # If running locally, define values e.g.
-# SERVER_NAME='' DETACHED=yes ./start-openqa-reverse-proxy.sh
+# DETACHED=yes ./start-openqa-reverse-proxy.sh
 
 set -ex
 IMAGE=quay.io/fedora/httpd-24:latest
+
+# The service directory for openqa-reverse-proxy scripts and logs
+if [ -z "${SRV}" ]; then
+    SRV='/home/fedora/openqa-containers/openqa-reverse-proxy'
+fi
+
 SSL_CONF="${SRV}/conf/openqa-proxy-ssl.conf"
 HTTP_CONF="${SRV}/conf/openqa-proxy.conf"
 
@@ -37,17 +43,12 @@ if [ -z "${PROXY_DST}" ]; then
     PROXY_DST=$(hostname -I | awk '{print $1}')
 fi
 
-# The directory for openqa-reverse-proxy scripts and logs
-if [ -z "${SRV}" ]; then
-    SRV='/home/fedora/openqa-containers/openqa-reverse-proxy'
-fi
-
 if [ ! -d "${SRV}/logs" ] && [ ! -L "${SRV}}/logs" ]; then
 	mkdir -p "${SRV}/logs"
 fi
 
-# If running locally without systemd, run the container detached so it
-# won't be dependent on the terminal that it started in
+# If running locally without systemd, run the container detached if you want
+# it to be independent from the terminal that it started in
 if [[ "$DETACHED" == "true" ]] || [[ "$DETACHED" == "yes" ]]; then
     detached_arg="-d"
 fi

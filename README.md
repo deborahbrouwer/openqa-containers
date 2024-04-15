@@ -85,7 +85,7 @@ Run the ExecStart command from the `openqa-webserver.service` file
 
 ### Start the openqa-webserver as a service
 
-webserver runs as `fedora` user so make sure that the user will survive closing the session
+webserver runs as `fedora` user so make sure that the user will survive closing the session:  
 `sudo loginctl enable-linger fedora`  
 
 ```
@@ -236,6 +236,9 @@ Change the default behaviour by defining values on the command line e.g.
 
 
 ### Start the openqa-worker service
+
+openqa-worker service runs as `fedora` user so make sure that the user will survive closing the session:  
+`sudo loginctl enable-linger fedora`  
 
 Use systemd `openqa-worker.service` to start ten workers:      
 ```bash

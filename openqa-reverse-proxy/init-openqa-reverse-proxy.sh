@@ -23,7 +23,7 @@ ln -s $SSL_CONF $CONFIG_DIR/openqa-proxy-ssl.conf
 ln -s $HTTP_CONF $CONFIG_DIR/openqa-proxy.conf
 
 # Production configuration
-if [ -f "/conf/privkey.pem" ]; then
+if [[ "$PRODUCTION" == "true" ]] || [[ "$PRODUCTION" == "yes" ]]; then
   echo "Using production SSL/TLS certificates"
 
   # Move the certs into the config dir

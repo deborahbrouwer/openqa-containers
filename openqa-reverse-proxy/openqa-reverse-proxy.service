@@ -3,6 +3,7 @@ Description=OpenQA Reverse Proxy for Web Server
 
 [Service]
 Environment=SRV='/home/fedora/openqa-containers/openqa-reverse-proxy'
+Environment=PRODUCTION=false
 ExecStart=/usr/bin/start-openqa-reverse-proxy.sh
 Restart=no
 ExecStop=/usr/bin/podman exec openqa-reverse-proxy /bin/bash -c "pkill -f tail"

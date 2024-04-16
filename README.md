@@ -32,7 +32,7 @@ This repository contains scripts to build and run a containerized deployment of 
 
 # The openqa-reverse-proxy  
 
-Use the reverse-proxy container to expose standard HTTP and HTTPS ports.  It is the only container that needs to be run as root.  It's not necessary to run this container if you're running this locally or without ssl/tls certificates and can use non-priviledged ports instead.  
+Use the reverse-proxy container to expose standard HTTP and HTTPS ports.  It is the only container that needs to be run as root.  It's not necessary to run this container if you're running this locally or without ssl/tls certificates and can use non-privileged ports instead.  
 
 
 

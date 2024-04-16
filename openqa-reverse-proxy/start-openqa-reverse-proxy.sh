@@ -1,6 +1,6 @@
 #!/bin/bash
 # If running locally, define values e.g.
-# DETACHED=yes ./start-openqa-reverse-proxy.sh
+# DETACHED=yes /home/fedora/openqa-containers/openqa-reverse-proxy/start-openqa-reverse-proxy.sh
 
 set -ex
 IMAGE=quay.io/fedora/httpd-24:latest
@@ -12,15 +12,32 @@ fi
 
 SSL_CONF="${SRV}/conf/openqa-proxy-ssl.conf"
 HTTP_CONF="${SRV}/conf/openqa-proxy.conf"
+BACKEND_SERVER=$(hostname -I | awk '{print $1}')
 
 if [ ! -f "$SSL_CONF" ]; then
   echo "Missing $SSL_CONF"
   exit
 fi
 
+if ! grep -n "$BACKEND_SERVER" $SSL_CONF; then
+  echo "Warning: missing $BACKEND_SERVER from $SSL_CONF"
+  cleanup
+fi
+
 if [ ! -f "$HTTP_CONF" ]; then
   echo "Missing $HTTP_CONF"
   exit
+fi
+
+if ! grep -n "$BACKEND_SERVER" $HTTP_CONF; then
+  echo "Warning: missing $BACKEND_SERVER from $HTTP_CONF"
+  cleanup
+fi
+
+SERVER_NAME="openqa.fedorainfracloud.org"
+if [ ! -f "${SRV}/conf/privkey.pem" ]; then
+  echo "Warning: using local server"
+  SERVER_NAME="$(curl ipinfo.io/ip)"
 fi
 
 if [[ -z $(podman images --format "{{.Tag}}" $IMAGE) ]]; then
@@ -29,19 +46,8 @@ if [[ -z $(podman images --format "{{.Tag}}" $IMAGE) ]]; then
 fi
 
 # Remove any old containers that may have exited without cleanup
-podman rm -a
+podman rm -a || true
 
-# The public name or ip of the server
-SERVER_NAME="openqa.fedorainfracloud.org"
-if [ ! -f "${SRV}/conf/privkey.pem" ]; then
-    SERVER_NAME="$(curl ipinfo.io/ip)"
-fi
-
-# The private ip of the container host, be careful to get just one value
-# also don't make this localhost since it will be interpreted incorrectly as the container's localhost
-if [ -z "${PROXY_DST}" ]; then
-    PROXY_DST=$(hostname -I | awk '{print $1}')
-fi
 
 if [ ! -d "${SRV}/logs" ] && [ ! -L "${SRV}}/logs" ]; then
 	mkdir -p "${SRV}/logs"
@@ -57,7 +63,7 @@ fi
 	-p 80:80 -p 443:443 \
 	${detached_arg} \
 	--user=root \
-	-e PROXY_DST=$PROXY_DST \
+	-e BACKEND_SERVER=$BACKEND_SERVER \
 	-e SERVER_NAME=$SERVER_NAME \
 	-v ${SRV}/conf:/conf/:z \
 	-v ${SRV}/logs:/etc/httpd/logs/:z \

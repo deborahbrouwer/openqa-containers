@@ -4,6 +4,7 @@
 
 Listen *:443
 
+# LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so
 # LoadModule md_module modules/mod_md.so
 # LoadModule ssl_module modules/mod_ssl.so
 # LoadModule watchdog_module modules/mod_watchdog.so
@@ -29,14 +30,35 @@ Listen *:443
 
 <VirtualHost *:443>
 
-ServerName openqa.fedorainfracloud.org
+    ServerName openqa.fedorainfracloud.org
+
+    <Proxy *>
+        Require all granted
+    </Proxy>
+
+    ProxyRequests Off
+    ProxyPreserveHost On
+
+    RewriteEngine On
+    RewriteCond %{HTTP:Connection} Upgrade [NC]
+    RewriteCond %{HTTP:Upgrade} websocket [NC]
+    RewriteRule /api/v1/ws/(.*) ws://172.31.1.1:8080/api/v1/ws/$1 [P,L]
+    RewriteCond %{HTTP:Connection} Upgrade [NC]
+    RewriteCond %{HTTP:Upgrade} websocket [NC]
+    RewriteRule /liveviewhandler/(.*) ws://172.31.1.1:8080/liveviewhandler/$1 [P,L]
+
+    ProxyPass / http://172.31.1.1:8080/ keepalive=On
+    ProxyPassReverse / http://172.31.1.1:8080/
+
     SSLEngine on
-    SSLCertificateFile /etc/httpd/conf.d/pubcert.pem
-    SSLCertificateKeyFile /etc/httpd/conf.d/privkey.pem
+
+    # Uncomment to use issued certificate
+    # SSLCertificateFile /etc/httpd/conf.d/pubcert.pem
     # SSLCertificateKeyFile /etc/httpd/conf.d/privkey.pem
 
-    ProxyPass / http://172.1.1.1:8080/ keepalive=On
-    ProxyPassReverse / http://172.1.1.1:8080/
+    SSLCertificateFile /etc/httpd/conf.d/localhost.crt
+    SSLCertificateKeyFile /etc/httpd/conf.d/localhost.key
+    SSLCertificateChainFile /etc/httpd/conf.d/ca.crt
 
 </VirtualHost>
 

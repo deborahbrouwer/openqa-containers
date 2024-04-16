@@ -3,7 +3,10 @@
 
 - [About](#about)
 - [The openqa-reverse-proxy](#The-openqa-reverse-proxy)
+    - [Reverse Proxy Configuration](#reverse-proxy-configuration)
     - [Start the openqa-reverse-proxy as a service](#start-the-openqa-reverse-proxy-as-a-service)
+- [The openqa-database](#The-openqa-database)
+
 - [The openqa-webserver](#The-openqa-webserver)
     - [Host Directories for Webserver](#host-directories-for-webserver)
     - [Web Configuration](#web-configuration)
@@ -12,7 +15,7 @@
     - [Start the openqa-webserver as a service](#start-the-openqa-webserver-as-a-service)
     - [Login](#login)
     - [Loading Tests](#loading-tests)
-- [The openqa-database](#The-openqa-database) 
+
 - [The openqa-consumer](#The-openqa-consumer)  
     - [Host Directories for Consumer](#host-directories-for-consumer)
     - [Consumer Configuration](#consumer-configuration)
@@ -34,28 +37,49 @@ This repository contains scripts to build and run a containerized deployment of 
 
 Use the reverse-proxy container to expose standard HTTP and HTTPS ports.  It is the only container that needs to be run as root.  It's not necessary to run this container if you're running this locally or without ssl/tls certificates and can use non-privileged ports instead.  
 
-### Start the openqa-reverse-proxy as a service
+### Reverse Proxy Configuration
+Makes copies of the configuration templates:  
+```
+cp /home/fedora/openqa-containers/openqa-reverse-proxy/conf/openqa-proxy.conf.template /home/fedora/openqa-containers/openqa-reverse-proxy/conf/openqa-proxy.conf;
+cp /home/fedora/openqa-containers/openqa-reverse-proxy/conf/openqa-proxy-ssl.conf.template /home/fedora/openqa-containers/openqa-reverse-proxy/conf/openqa-proxy-ssl.conf;
+```
+* Configure the ServerName to the public ip of the host, if the ServerName isn't `openqa.fedorainfracloud.org`     
+* Configure all of the rewrite and proxy rules to pass traffic to the private ip of the host `hostname -I`  
+* If applicable, place the private ssl/tls certificate key into `/home/fedora/openqa-containers/openqa-reverse-proxy/conf/`.  Otherwise local certificates will be generated and used.    
 
+
+### Start the openqa-reverse-proxy as a service
+.
 Pull the apache server container:  
 `sudo podman pull quay.io/fedora/httpd-24:latest`  
 
+Start the service:  
 ```
 sudo cp /home/fedora/openqa-containers/openqa-reverse-proxy/openqa-reverse-proxy.service /etc/systemd/system/;
 sudo cp /home/fedora/openqa-containers/openqa-reverse-proxy/start-openqa-reverse-proxy.sh /usr/bin/;
 sudo systemctl daemon-reload;
 sudo systemctl start openqa-reverse-proxy.service;
 ```
+Verify:  
+`journalctl -f`  
+`curl localhost`  should connect with 503 error  
+ Logs: `/home/fedora/openqa-containers/openqa-reverse-proxy/logs`  
+
+
+# The openqa-database
+
+
 
 # The openqa-webserver  
 
-The openqa-webserver container runs an apache web server on non-privileged port 8080.  
+The openqa-webserver container runs a backend web server on non-privileged port 8080.  
 
 ### Host Directories for Webserver
 The openqa-webserver container shares these directories with its host:  
 
 * `tests/`: The full [os-autoinst-distri-fedora](https://pagure.io/fedora-qa/os-autoinst-distri-fedora) repository.
   
-* `data/`: the PostgreSQL database where login information as well as test scheduling and results are stored
+* `openqa-database/data/`: the PostgreSQL database where login information as well as test scheduling and results are stored.  It's possible to just copy this from other instances using rsync.  
   
 * `hdd/`: holds OS images for testing.
     * `hdd/fixed`:  Images in this subdir are exempt from cleanup.  Store images that are manually created through [createhdds](https://pagure.io/fedora-qa/createhdds) in this subdir.  
@@ -77,9 +101,11 @@ The openqa-webserver container shares these directories with its host:
   
 ### Web Configuration    
 In the `openqa-webserver/conf` subdirectory copy `client.conf.template` to `client.conf` and fill in host and api keys/secrets.
-
+```
+cp /home/fedora/openqa-containers/openqa-webserver/conf/client.conf.template /home/fedora/openqa-containers/openqa-webserver/conf/client.conf;
+```
 ### Building Openqa Webserver
-In the subdirectory `openqa-webserver/` run `build-webserver-image.sh`  
+`/home/fedora/openqa-containers/openqa-webserver/build-webserver-image.sh`   
 
 ### Start the openqa-webserver locally
 Run the ExecStart command from the `openqa-webserver.service` file  
@@ -96,6 +122,10 @@ sudo cp /home/fedora/openqa-containers/openqa-webserver/start-openqa-webserver.s
 sudo systemctl daemon-reload;
 sudo systemctl start openqa-webserver;
 ```
+Verify:  
+`journalctl -f`  
+`curl localhost:8080`  should provide openqa webUI and, if the openqa-reverse-proxy is running, `curl localhost` should work now too.  
+ Logs: `/home/fedora/openqa-containers/openqa-webserver/logs`  
 
 ### Login
 Login through the web UI using a Fedora Account.  
@@ -117,8 +147,6 @@ su geekotest -c "git pull";
 ./fifloader.py --load -u  templates.fif.json templates-updates.fif.json
 ```
 
-# The openqa-database
-
 # The openqa-consumer 
 
 The openqa-consumer uses fedora-messaging to listen for new builds on the public fedora messaging service and schedules tests for those builds using fedora-openqa.  
@@ -127,20 +155,29 @@ The openqa-consumer uses fedora-messaging to listen for new builds on the public
 [fedora-openqa](https://pagure.io/fedora-qa/fedora_openqa)  
 
 ### Host Directories for Consumer
-Make sure these subdirectories exist on the host in `openqa-consumer/`:    
-`fedora-messaging-logs`  
-`fedora-openqa`  
+Create sure these subdirectories on the host in `openqa-consumer/`:    
+```
+mkdir -p /home/fedora/openqa-containers/openqa-consumer/fedora-messaging-logs;
+mkdir -p /home/fedora/openqa-containers/openqa-consumer/fedora-openqa;
+```
 
 ### Consumer Configuration
 
-* In the `openqa-consumer/conf` subdirectory, make a copy of `client.conf` from `client.conf.template` and fill in the host and api keys/secrets.  This will authorize `fedora-openqa.py` to schedule tests.  
-> Warning: don't use `127.0.0.1` or `localhost`, even if running locally, since this would be the container's localhost.  
-
+* In the `openqa-consumer/conf` subdirectory, make a copy of `client.conf` from `client.conf.template` and fill in the web UI host and api keys/secrets.  This will authorize `fedora-openqa.py` to schedule tests.
+ > Warning: don't use `127.0.0.1` or `localhost`, even if running locally, since this would be the container's localhost.  
+```
+cp /home/fedora/openqa-containers/openqa-consumer/conf/client.conf.template /home/fedora/openqa-containers/openqa-consumer/conf/client.conf;
+```
 * Also in the `openqa-consumer/conf` subdirectory, make a copy of `fedora_openqa_scheduler.toml` from `fedora_openqa_scheduler.toml.template`.
-    - Configure the `openqa_hostname`  if not using the default `openqa.fedorainfracloud.org`  
-    - Optionally, edit to include/exclude the kinds of messages to listen for.  It's not necessary to change the queue ids, because `/init_openqa_consumer.sh` will automatically change the uuid and in the config each time the consumer is run.
+```
+cp /home/fedora/openqa-containers/openqa-consumer/conf/fedora_openqa_scheduler.toml.template /home/fedora/openqa-containers/openqa-consumer/conf/fedora_openqa_scheduler.toml;
+```
+Configure the `openqa_hostname = "12.34.56.78"` using the public ip of the webserver if not using the default `openqa.fedorainfracloud.org`  
+
+Optionally, edit the routing_keys to include/exclude the kinds of messages to listen for.  
+It's not necessary to change the queue ids, because `/init_openqa_consumer.sh` will automatically change the uuid and in the config each time the consumer is run.  
  
-If running without https make sure to tell OpenQA_Client to use http
+If running without https make sure to tell OpenQA_Client to use http  
 ```bash
 source /venv/bin/activate
 schedule_path="/fedora-openqa/src/fedora_openqa/schedule.py"
@@ -152,7 +189,7 @@ pip uninstall fedora-openqa;
 pip install /fedora-openqa;
 ```
 ### Building openqa-consumer  
-`build-consumer-image.sh`    
+`/home/fedora/openqa-containers/openqa-consumer/build-consumer-image.sh`    
 
 ### Start the consumer locally
 Run the ExecStart command available in the `openqa-consumer.service` config.  
@@ -160,10 +197,13 @@ Run the ExecStart command available in the `openqa-consumer.service` config.
 
 ### Start the consumer as a service
 ```bash
-sudo cp openqa-consumer.service /etc/systemd/system/;
+sudo cp /home/fedora/openqa-containers/openqa-consumer/openqa-consumer.service /etc/systemd/system/;
 sudo systemctl daemon-reload;
 sudo systemctl start openqa-consumer;
 ```
+Verify:
+`journalctl -f`  
+Logs: `/home/fedora/openqa-containers/openqa-consumer/fedora-messaging-logs`  
 
 ### Scheduling Tests
 
@@ -212,19 +252,23 @@ The openqa-worker container shares this directory with its host:
 * `tests/`: The full [os-autoinst-distri-fedora](https://pagure.io/fedora-qa/os-autoinst-distri-fedora) repository.
   
 ### Worker Configuration    
-* In the `openqa-worker/conf` subdirectory copy `client.conf.template` to `client.conf` and fill in host and api keys/secrets.
-* In the `openqa-worker/conf` subdirectory copy `workers.ini.template` to `workers.ini` and  fill in these values:  
+```
+cp /home/fedora/openqa-containers/openqa-worker/conf/client.conf.template /home/fedora/openqa-containers/openqa-worker/conf/client.conf;
+cp /home/fedora/openqa-containers/openqa-worker/conf/workers.ini.template /home/fedora/openqa-containers/openqa-worker/conf/workers.ini;
+```
+* In `client.conf` and fill in host and api keys/secrets.
+* In  `workers.ini` and  fill in these values:  
 
 |                            workers.ini    |    |
 |----------------------------------------------------------------|---------------------------------|
-| `HOST = http://172.31.1.1:8080`      | The openqa-webserver host. It's wrong to use `localhost` since this is the container's localhost.       |
+| `HOST = http://172.31.1.1`      | The openqa-webserver host. It's wrong to use `localhost` since this is the container's localhost.   Add port `8080` if not using openqa-reverse-proxy.    |
 | `WORKER_HOSTNAME = 172.31.1.1`        | For developer mode: the worker's location for receiving livelog. Don't use `localhost` |
 | `AUTOINST_URL_HOSTNAME = 172.31.1.1`   | For logging: the worker's location for receiving qemu logs. This is only important for parallel tests. |
 
 
 ### Building Openqa Worker
 To build the openqa worker image:  
-`openqa-containers/openqa-worker/build-worker-image.sh`  
+`/home/fedora/openqa-containers/openqa-worker/build-worker-image.sh`  
 
 ### Start workers locally
 
@@ -252,7 +296,7 @@ sudo systemctl start openqa-worker;
 The `openqa-worker.service` will exit, but verify the workers and their ports with `podman ps -a`.  
 See also `journalctl -f` and `sudo systemctl status openqa-worker`.    
 
-Use systemd `openqa-worker.timer` to restart the openqa-worker.service workers every 12 hours to avoid filling up the disk with their asset caches.    
+Now start `openqa-worker.timer` to restart the openqa-worker.service workers every 12 hours to avoid filling up the disk with their asset caches.    
 
 ```bash
 sudo cp /home/fedora/openqa-containers/openqa-worker/openqa-worker.timer /usr/lib/systemd/system/openqa-worker.timer;

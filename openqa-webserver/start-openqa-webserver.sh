@@ -30,6 +30,10 @@ if [ ! -f "${SRV}/conf/client.conf" ]; then
     exit
 fi
 
+if [ ! -d "${SRV}/logs" ] && [ ! -L "${SRV}}/logs" ]; then
+	mkdir -p "${SRV}/logs"
+fi
+
 if [[ -z $(podman images --format "{{.Tag}}" $IMAGE) ]]; then
     echo "$IMAGE is missing"
 	exit
@@ -47,6 +51,7 @@ podman run --rm -i --name openqa-webserver \
 	-v ${SRV}/iso:/var/lib/openqa/share/factory/iso:z \
 	-v ${SRV}/openqa-database/data:/var/lib/pgsql/data/:z \
 	-v ${SRV}/conf:/conf/:z \
+	-v ${SRV}/logs:/etc/httpd/logs/:z \
 	-v ${SRV}/init_openqa_web.sh:/init_openqa_web.sh:z \
 	$IMAGE /init_openqa_web.sh
 

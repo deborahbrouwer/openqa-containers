@@ -13,6 +13,7 @@
     - [Loading Tests](#loading-tests)
       
 - [The openqa-reverse-proxy](#The-openqa-reverse-proxy)
+    - [Generating certificates](#generating-certificates)
     - [Reverse Proxy Configuration](#reverse-proxy-configuration)
     - [Start the openqa-reverse-proxy as a service](#start-the-openqa-reverse-proxy-as-a-service)
 - [The openqa-database](#The-openqa-database)
@@ -113,6 +114,40 @@ su geekotest -c "git pull";
 # The openqa-reverse-proxy  
 
 Use the reverse-proxy container to expose standard HTTP and HTTPS ports.  It is the only container that needs to be run as root.  It's not necessary to run this container if you're running this locally or without ssl/tls certificates and can use non-privileged ports instead.  
+
+### Generating Certificates
+
+If all certificate configurations are removed from the config files, then mod_md will fetch certificates from the  MDCertificateAuthority as specified in openqa-proxy-ssl.conf.
+If successful then `/home/fedora/openqa-containers/openqa-reverse-proxy/log/error_log` should say:  
+```
+AH10085: Init: openqa.fedorainfracloud.org:443 will respond with '503 Service Unavailable' for now. There are no SSL certificates configured and no other module contributed any.
+AH00489: Apache/2.4.58 (Fedora Linux) OpenSSL/3.0.9 configured -- resuming normal operations
+AH00094: Command line: 'httpd -D SSL'
+AH10059: The Managed Domain openqa.fedorainfracloud.org has been setup and changes will be activated on next (graceful) server restart.
+
+```
+Kill the httpd process and restart the server:  
+`httpd -DSSL`  
+
+Error log should say:  
+```
+AH00489: Apache/2.4.58 (Fedora Linux) OpenSSL/3.0.9 configured -- resuming normal operations
+```
+Remove old symlinks:
+```
+rm /etc/httpd/conf.d/privkey.pem;
+ rm /etc/httpd/conf.d/pubcert.pem;
+```
+Copy the new certificates into the config directory within the openqa-reverse-proxy container:  
+```
+cp /var/lib/httpd/md/domains/openqa.fedorainfracloud.org/privkey.pem /etc/httpd/conf.d/privkey.pem;
+cp /var/lib/httpd/md/domains/openqa.fedorainfracloud.org/pubcert.pem /etc/httpd/conf.d/pubcert.pem;
+```
+Also copy the new certificates into the config directory so that they will be available to the host when the container stops:  
+```
+cp /var/lib/httpd/md/domains/openqa.fedorainfracloud.org/privkey.pem /conf/privkey.pem;
+cp /var/lib/httpd/md/domains/openqa.fedorainfracloud.org/pubcert.pem /conf/pubcert.pem;
+```
 
 ### Reverse Proxy Configuration
 Makes copies of the configuration templates:  

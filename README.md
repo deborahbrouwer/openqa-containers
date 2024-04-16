@@ -34,9 +34,11 @@ This repository contains scripts to build and run a containerized deployment of 
 
 Use the reverse-proxy container to expose standard HTTP and HTTPS ports.  It is the only container that needs to be run as root.  It's not necessary to run this container if you're running this locally or without ssl/tls certificates and can use non-privileged ports instead.  
 
-
-
 ### Start the openqa-reverse-proxy as a service
+
+Pull the apache server container:  
+`sudo podman pull quay.io/fedora/httpd-24:latest`  
+
 ```
 sudo cp /home/fedora/openqa-containers/openqa-reverse-proxy/openqa-reverse-proxy.service /etc/systemd/system/;
 sudo cp /home/fedora/openqa-containers/openqa-reverse-proxy/start-openqa-reverse-proxy.sh /usr/bin/;

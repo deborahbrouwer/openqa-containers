@@ -123,7 +123,12 @@ cp /home/fedora/openqa-containers/openqa-reverse-proxy/conf/openqa-proxy-ssl.con
 * Configure the ServerName to the public ip of the host, if the ServerName isn't `openqa.fedorainfracloud.org`     
 * Configure all of the rewrite and proxy rules to pass traffic to the private ip of the host `hostname -I`  
 * If applicable, place the private ssl/tls certificate key into `/home/fedora/openqa-containers/openqa-reverse-proxy/conf/`.  Otherwise local certificates will be generated and used.    
-
+  >Note: check and change the SELinux context of of keys if necessary
+```
+sudo chcon -t container_file_t  /home/fedora/openqa-containers/openqa-reverse-proxy/conf/privkey.pem;
+sudo chcon -t container_file_t  /home/fedora/openqa-containers/openqa-reverse-proxy/conf/pubcert.pem;
+ls -laZ /home/fedora/openqa-containers/openqa-reverse-proxy/conf/;
+```
 
 ### Start the openqa-reverse-proxy as a service
 .

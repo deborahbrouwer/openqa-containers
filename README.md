@@ -73,14 +73,14 @@ cp /home/fedora/openqa-containers/openqa-webserver/conf/client.conf.template /ho
 `/home/fedora/openqa-containers/openqa-webserver/build-webserver-image.sh`   
 
 ### Start the openqa-webserver locally
-Run the ExecStart command from the `openqa-webserver.service` file  
-> Note add to the podman run command the --detach or --tty option depending on whether you want to see the standard output
+`DETACHED=yes /home/fedora/openqa-containers/openqa-webserver/start-openqa-webserver.sh`  
 
 ### Start the openqa-webserver as a service
 
-webserver runs as `fedora` user so make sure that the user will survive closing the session:  
+The webserver runs as `fedora` user so make sure that the user will survive closing the session:  
 `sudo loginctl enable-linger fedora`  
 
+Copy service files and scripts where systemd expects to find them:  
 ```
 sudo cp /home/fedora/openqa-containers/openqa-webserver/openqa-webserver.service /etc/systemd/system/;
 sudo cp /home/fedora/openqa-containers/openqa-webserver/start-openqa-webserver.sh /usr/bin/start-openqa-webserver.sh;

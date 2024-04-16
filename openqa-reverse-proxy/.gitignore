@@ -1,4 +1,5 @@
 conf/openqa-proxy-ssl.conf
 conf/openqa-proxy.conf
 conf/privkey.pem
+conf/pubcert.pem
 logs*

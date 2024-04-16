@@ -1,6 +1,6 @@
 #!/bin/bash
 # If running locally, define values e.g.
-# SRV='/home/fedora/openqa-containers/openqa-webserver' DETACHED=yes ./start-openqa-webserver.sh
+# SRV='/home/fedora/openqa-containers/openqa-webserver' DETACHED=yes /home/fedora/openqa-containers/openqa-webserver/start-openqa-webserver.sh
 
 set -e
 IMAGE=localhost/openqa-webserver:latest

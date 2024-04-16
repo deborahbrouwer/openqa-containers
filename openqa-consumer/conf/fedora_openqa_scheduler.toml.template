@@ -69,31 +69,31 @@ disable_existing_loggers = true
 [log_config.formatters.simple]
 format = "[%(levelname)s %(name)s] %(message)s"
 
-[log_config.handlers.console]
-class = "logging.StreamHandler"
+[log_config.handlers.file]
+class = "logging.FileHandler"
 formatter = "simple"
-stream = "ext://sys.stdout"
+filename = "/fedora-messaging-logs/2bdcfa12-8ed0-42e7-afc6-8e2b19ce4638.log"
 
 [log_config.loggers.OpenQAScheduler]
-level = "INFO"
+level = "DEBUG"
 propagate = false
-handlers = ["console"]
+handlers = ["file"]
 
 [log_config.loggers.fedora_messaging]
 level = "INFO"
 propagate = false
-handlers = ["console"]
+handlers = ["file"]
 
 [log_config.loggers.twisted]
 level = "INFO"
 propagate = false
-handlers = ["console"]
+handlers = ["file"]
 
 [log_config.loggers.pika]
 level = "WARNING"
 propagate = false
-handlers = ["console"]
+handlers = ["file"]
 
 [log_config.root]
 level = "ERROR"
-handlers = ["console"]
+handlers = ["file"]

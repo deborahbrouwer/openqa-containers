@@ -4,7 +4,7 @@ set -e
 
 function cleanup() {
   echo "Return ownership of bound directories back to container host."
-  chown -R root:root /var/lib/pgsql /var/lib/openqa/ /usr/share/openqa/
+  chown -R root:root /var/lib/pgsql /var/lib/openqa/ /usr/share/openqa/ /etc/httpd/logs
   exit
 }
 trap cleanup SIGTERM SIGINT

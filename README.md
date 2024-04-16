@@ -2,10 +2,6 @@
 ## Table of Contents
 
 - [About](#about)
-- [The openqa-reverse-proxy](#The-openqa-reverse-proxy)
-    - [Reverse Proxy Configuration](#reverse-proxy-configuration)
-    - [Start the openqa-reverse-proxy as a service](#start-the-openqa-reverse-proxy-as-a-service)
-- [The openqa-database](#The-openqa-database)
 
 - [The openqa-webserver](#The-openqa-webserver)
     - [Host Directories for Webserver](#host-directories-for-webserver)
@@ -15,6 +11,11 @@
     - [Start the openqa-webserver as a service](#start-the-openqa-webserver-as-a-service)
     - [Login](#login)
     - [Loading Tests](#loading-tests)
+      
+- [The openqa-reverse-proxy](#The-openqa-reverse-proxy)
+    - [Reverse Proxy Configuration](#reverse-proxy-configuration)
+    - [Start the openqa-reverse-proxy as a service](#start-the-openqa-reverse-proxy-as-a-service)
+- [The openqa-database](#The-openqa-database)
 
 - [The openqa-consumer](#The-openqa-consumer)  
     - [Host Directories for Consumer](#host-directories-for-consumer)
@@ -32,43 +33,6 @@
 
 # About  
 This repository contains scripts to build and run a containerized deployment of [openQA](https://github.com/os-autoinst).  The containers are specifically designed to leverage cloud resources and are customized to support [Fedora](https://fedoraproject.org/wiki/OpenQA) release and update testing. 
-
-# The openqa-reverse-proxy  
-
-Use the reverse-proxy container to expose standard HTTP and HTTPS ports.  It is the only container that needs to be run as root.  It's not necessary to run this container if you're running this locally or without ssl/tls certificates and can use non-privileged ports instead.  
-
-### Reverse Proxy Configuration
-Makes copies of the configuration templates:  
-```
-cp /home/fedora/openqa-containers/openqa-reverse-proxy/conf/openqa-proxy.conf.template /home/fedora/openqa-containers/openqa-reverse-proxy/conf/openqa-proxy.conf;
-cp /home/fedora/openqa-containers/openqa-reverse-proxy/conf/openqa-proxy-ssl.conf.template /home/fedora/openqa-containers/openqa-reverse-proxy/conf/openqa-proxy-ssl.conf;
-```
-* Configure the ServerName to the public ip of the host, if the ServerName isn't `openqa.fedorainfracloud.org`     
-* Configure all of the rewrite and proxy rules to pass traffic to the private ip of the host `hostname -I`  
-* If applicable, place the private ssl/tls certificate key into `/home/fedora/openqa-containers/openqa-reverse-proxy/conf/`.  Otherwise local certificates will be generated and used.    
-
-
-### Start the openqa-reverse-proxy as a service
-.
-Pull the apache server container:  
-`sudo podman pull quay.io/fedora/httpd-24:latest`  
-
-Start the service:  
-```
-sudo cp /home/fedora/openqa-containers/openqa-reverse-proxy/openqa-reverse-proxy.service /etc/systemd/system/;
-sudo cp /home/fedora/openqa-containers/openqa-reverse-proxy/start-openqa-reverse-proxy.sh /usr/bin/;
-sudo systemctl daemon-reload;
-sudo systemctl start openqa-reverse-proxy.service;
-```
-Verify:  
-`journalctl -f`  
-`curl localhost`  should connect with 503 error  
- Logs: `/home/fedora/openqa-containers/openqa-reverse-proxy/logs`  
-
-
-# The openqa-database
-
-
 
 # The openqa-webserver  
 
@@ -146,6 +110,40 @@ cd /var/lib/openqa/share/tests/fedora/;
 su geekotest -c "git pull";
 ./fifloader.py --load -u  templates.fif.json templates-updates.fif.json
 ```
+# The openqa-reverse-proxy  
+
+Use the reverse-proxy container to expose standard HTTP and HTTPS ports.  It is the only container that needs to be run as root.  It's not necessary to run this container if you're running this locally or without ssl/tls certificates and can use non-privileged ports instead.  
+
+### Reverse Proxy Configuration
+Makes copies of the configuration templates:  
+```
+cp /home/fedora/openqa-containers/openqa-reverse-proxy/conf/openqa-proxy.conf.template /home/fedora/openqa-containers/openqa-reverse-proxy/conf/openqa-proxy.conf;
+cp /home/fedora/openqa-containers/openqa-reverse-proxy/conf/openqa-proxy-ssl.conf.template /home/fedora/openqa-containers/openqa-reverse-proxy/conf/openqa-proxy-ssl.conf;
+```
+* Configure the ServerName to the public ip of the host, if the ServerName isn't `openqa.fedorainfracloud.org`     
+* Configure all of the rewrite and proxy rules to pass traffic to the private ip of the host `hostname -I`  
+* If applicable, place the private ssl/tls certificate key into `/home/fedora/openqa-containers/openqa-reverse-proxy/conf/`.  Otherwise local certificates will be generated and used.    
+
+
+### Start the openqa-reverse-proxy as a service
+.
+Pull the apache server container:  
+`sudo podman pull quay.io/fedora/httpd-24:latest`  
+
+Start the service:  
+```
+sudo cp /home/fedora/openqa-containers/openqa-reverse-proxy/openqa-reverse-proxy.service /etc/systemd/system/;
+sudo cp /home/fedora/openqa-containers/openqa-reverse-proxy/start-openqa-reverse-proxy.sh /usr/bin/;
+sudo systemctl daemon-reload;
+sudo systemctl start openqa-reverse-proxy.service;
+```
+Verify:  
+`journalctl -f`  
+`curl localhost`  should connect with 503 error  
+ Logs: `/home/fedora/openqa-containers/openqa-reverse-proxy/logs`  
+
+
+# The openqa-database
 
 # The openqa-consumer 
 

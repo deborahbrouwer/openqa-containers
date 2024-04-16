@@ -15,8 +15,8 @@ fi
 
 cp "${SRV}/cloudinit.iso" "${SRV}/iso/fixed"
 
-if [ ! -d "${SRV}/data" ] && [ ! -L "${SRV}}/data" ]; then
-	echo "Missing ${SRV}/data"
+if [ ! -d "${SRV}/openqa-database/data" ]; then
+	echo "Missing ${SRV}/openqa-database/data"
     exit
 fi
 
@@ -45,7 +45,7 @@ podman run --rm -i --name openqa-webserver \
 	--network=slirp4netns \
 	-v ${SRV}/hdd:/var/lib/openqa/share/factory/hdd:z \
 	-v ${SRV}/iso:/var/lib/openqa/share/factory/iso:z \
-	-v ${SRV}/data:/var/lib/pgsql/data/:z \
+	-v ${SRV}/openqa-database/data:/var/lib/pgsql/data/:z \
 	-v ${SRV}/conf:/conf/:z \
 	-v ${SRV}/init_openqa_web.sh:/init_openqa_web.sh:z \
 	$IMAGE /init_openqa_web.sh

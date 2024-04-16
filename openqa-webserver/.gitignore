@@ -2,7 +2,7 @@ iso/*
 hdd*
 logs/*
 !hdd/.gitkeep
-data*
+openqa-database/data*
 tests*
 createhdds*
 conf/client.conf

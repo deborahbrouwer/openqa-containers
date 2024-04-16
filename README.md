@@ -88,7 +88,7 @@ sudo systemctl start openqa-webserver;
 ```
 Verify:  
 `journalctl -f`  
-`curl localhost:8080`  should provide openqa webUI and, if the openqa-reverse-proxy is running, `curl localhost` should work now too.  
+`curl localhost:8080`   
  Logs: `/home/fedora/openqa-containers/openqa-webserver/logs`  
 
 ### Login
@@ -139,7 +139,7 @@ sudo systemctl start openqa-reverse-proxy.service;
 ```
 Verify:  
 `journalctl -f`  
-`curl localhost`  should connect with 503 error  
+`curl localhost`  
  Logs: `/home/fedora/openqa-containers/openqa-reverse-proxy/logs`  
 
 

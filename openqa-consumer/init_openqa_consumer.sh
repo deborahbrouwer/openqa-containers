@@ -50,7 +50,6 @@ configure() {
 }
 
 get_fedora_openqa
-rm -rf /fedora-messaging-logs/*
 
 mkdir -p /venv/etc/ /etc/openqa/
 configure

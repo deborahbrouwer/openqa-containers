@@ -238,6 +238,7 @@ source /venv/bin/activate
 fedora-openqa fcosbuild -f  https://builds.coreos.fedoraproject.org/prod/streams/testing-devel/builds/39.20240401.20.0/x86_64
 fedora-openqa compose -f https://odcs.fedoraproject.org/composes/odcs-29778
 fedora-openqa compose -f https://kojipkgs.fedoraproject.org/compose/rawhide/Fedora-Rawhide-20240401.n.0/compose
+fedora-openqa update -f  FEDORA-2024-937be154d8
 ```
 Alternatively, tests can also be schduled manually with `openqa-cli`, but using this tool requires a manual check of the variables expected by the tests as set out in `os-autoinst-distri-fedora/templates.fif.jsontemplates.fif.json`.  
 For example, these commands schedule two tests that must be run in parallel:  

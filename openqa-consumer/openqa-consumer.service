@@ -5,7 +5,9 @@ Description=OpenQA Fedora Messaging Consumer
 User=fedora
 Group=fedora
 Environment=SRV='/home/fedora/openqa-containers/openqa-consumer'
+Environment=USE_HTTPS='true'
 ExecStart=/usr/bin/podman run --rm -i --name openqa-consumer \
+	-e USE_HTTPS=${USE_HTTPS} \
 	-v ${SRV}/conf:/conf/:z \
 	-v ${SRV}/fedora-openqa:/fedora-openqa/:z \
 	-v ${SRV}/fedora-messaging-logs:/fedora-messaging-logs/:z \

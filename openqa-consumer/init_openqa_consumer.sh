@@ -55,6 +55,11 @@ mkdir -p /venv/etc/ /etc/openqa/
 configure
 source /venv/bin/activate
 
+if [[ "$USE_HTTPS" == "false" ]] || [[ "$USE_HTTPS" == "no" ]]; then
+  schedule_path="/fedora-openqa/src/fedora_openqa/schedule.py"
+  sed -i 's/client = OpenQA_Client(openqa_hostname)/client = OpenQA_Client(openqa_hostname, scheme='"'"'http'"'"')/' $schedule_path
+fi
+
 pip install "$fedora_openqa_dir"
 /venv/bin/fedora-messaging --conf "$scheduler_symlink" consume
 

@@ -51,6 +51,11 @@ configure() {
 
 get_fedora_openqa
 
+# Clean up log files. Always keep the three most recent log files.
+# Delete the remaining log files if they are older than a week
+# This is needed because openqa-consumer will restart itself on error and create a log file each time.
+rm -rf $(ls -t /fedora-messaging-logs | tail -n +4 | while read file; do find /fedora-messaging-logs -name "$file" -type f -mtime +7 -exec ls {} \;; done)
+
 mkdir -p /venv/etc/ /etc/openqa/
 configure
 source /venv/bin/activate

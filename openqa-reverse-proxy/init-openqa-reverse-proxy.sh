@@ -30,10 +30,6 @@ if [[ "$PRODUCTION" == "true" ]] || [[ "$PRODUCTION" == "yes" ]]; then
   ln -s /conf/pubcert.pem $CONFIG_DIR/pubcert.pem
   ln -s /conf/privkey.pem $CONFIG_DIR/privkey.pem
 
-  # Stop the default configs from interfering
-  sed -i "s|SSLCertificateFile .*|SSLCertificateFile $CONFIG_DIR/pubcert.pem|" $DEFAULT_CONF
-  sed -i "s|SSLCertificateKeyFile .*|SSLCertificateKeyFile $CONFIG_DIR/privkey.pem|" $DEFAULT_CONF
-
 else
 # local configuration
   echo "Using local SSL/TLS certificates"
@@ -46,13 +42,11 @@ else
   cp "$mojo_resources"/server.key $CONFIG_DIR/localhost.key
   cp "$mojo_resources"/server.crt $CONFIG_DIR/ca.crt
 
-  # Stop the default configs from interfering
-  sed -i "s|SSLCertificateFile .*|SSLCertificateFile $CONFIG_DIR/localhost.crt|" $DEFAULT_CONF
-  sed -i "s|SSLCertificateKeyFile .*|SSLCertificateKeyFile $CONFIG_DIR/localhost.key|" $DEFAULT_CONF
-
 fi
 
-# Stop the default configs from interfering in general
+# Stop the default configs from interfering
+sed -i "s|SSLCertificateFile .*|# SSLCertificateFile |" $DEFAULT_CONF
+sed -i "s|SSLCertificateKeyFile .*|# SSLCertificateKeyFile |" $DEFAULT_CONF
 sed -i "s|SSLEngine .*|SSLEngine off|" $DEFAULT_CONF
 sed -i "s|Listen .*|# Listen|" $DEFAULT_CONF
 sed -i "s|.*ServerName.*|ServerName $SERVER_NAME|" /etc/httpd/conf/httpd.conf

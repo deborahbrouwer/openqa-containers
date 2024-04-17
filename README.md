@@ -201,37 +201,22 @@ mkdir -p /home/fedora/openqa-containers/openqa-consumer/fedora-openqa;
 
 ### Consumer Configuration
 
-* In the `openqa-consumer/conf` subdirectory, make a copy of `client.conf` from `client.conf.template` and fill in the web UI host and api keys/secrets.  This will authorize `fedora-openqa.py` to schedule tests.
- > Warning: don't use `127.0.0.1` or `localhost`, even if running locally, since this would be the container's localhost.  
+Make local copies of the config files:  
 ```
 cp /home/fedora/openqa-containers/openqa-consumer/conf/client.conf.template /home/fedora/openqa-containers/openqa-consumer/conf/client.conf;
-```
-* Also in the `openqa-consumer/conf` subdirectory, make a copy of `fedora_openqa_scheduler.toml` from `fedora_openqa_scheduler.toml.template`.
-```
 cp /home/fedora/openqa-containers/openqa-consumer/conf/fedora_openqa_scheduler.toml.template /home/fedora/openqa-containers/openqa-consumer/conf/fedora_openqa_scheduler.toml;
 ```
-Configure the `openqa_hostname = "12.34.56.78"` using the public ip of the webserver if not using the default `openqa.fedorainfracloud.org`  
 
-Optionally, edit the routing_keys to include/exclude the kinds of messages to listen for.  
-It's not necessary to change the queue ids, because `/init_openqa_consumer.sh` will automatically change the uuid and in the config each time the consumer is run.  
+* `client.conf` needs the openqa-webserver plus api keys/secrets. This will authorize `fedora-openqa.py` to schedule tests.
+* `fedora_openqa_scheduler.toml` also needs the `openqa_hostname` to be set to webserver ip if not using the default `openqa.fedorainfracloud.org`.  It's not necessary to change the queue ids, because these will be configured by `/init_openqa_consumer.sh` each time the consumer is run.
  
-If running without https make sure to tell OpenQA_Client to use http  
-```bash
-source /venv/bin/activate
-schedule_path="/fedora-openqa/src/fedora_openqa/schedule.py"
-sed -i 's/client = OpenQA_Client(openqa_hostname)/client = OpenQA_Client(openqa_hostname, scheme='"'"'http'"'"')/' $schedule_path
-```
-then manually reinstall fedora-openqa
-```bash
-pip uninstall fedora-openqa;
-pip install /fedora-openqa;
-```
 ### Building openqa-consumer  
 `/home/fedora/openqa-containers/openqa-consumer/build-consumer-image.sh`    
 
 ### Start the consumer locally
 Run the ExecStart command available in the `openqa-consumer.service` config.  
 > Note add to the podman run command the --detach or --tty option depending on whether you want to see the standard output
+> Note define `USE_HTTPS=false` if the webserver does not have valid certificates
 
 ### Start the consumer as a service
 ```bash

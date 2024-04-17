@@ -54,7 +54,7 @@ routing_keys = ["org.fedoraproject.prod.pungi.compose.status.change",
 
 [consumer_config]
 # host to schedule tests on
-openqa_hostname = "openqa.fedoraproject.org"
+openqa_hostname = "openqa.fedorainfracloud.org"
 # arches to schedule update tests for
 update_arches = ["x86_64"]
 

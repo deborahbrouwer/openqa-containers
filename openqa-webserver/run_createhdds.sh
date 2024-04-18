@@ -53,11 +53,6 @@ run_createhdds() {
 		fi
 	done
 	cd ..
-
-	if [ "$files_copied" ] && [ "$(podman ps -q --format "{{.Image}} {{.ID}}" | grep "$REPOSITORY")" ]; then
-		echo -e "\n--> Warning images were copied to hdd/ while the web UI container is running."
-		echo "--> Restart the web UI container to access these images."
-	fi
 }
 
 run_createhdds

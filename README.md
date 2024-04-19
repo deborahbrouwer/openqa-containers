@@ -268,7 +268,7 @@ Use openqa-cli to cancel jobs:
 for JOB_ID in {226..342}; do openqa-cli api -X POST jobs/$JOB_ID/cancel; done
 ```
 
-# The worker container
+# The openqa-worker
 
 ### Host Directories for Worker
 The openqa-worker container shares this directory with its host:  

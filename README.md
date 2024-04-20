@@ -28,7 +28,7 @@
 - [The openqa-worker](#The-openqa-worker)
     - [Host Directories for Worker](#host-directories-for-worker)
     - [Worker Configuration](#worker-configuration)
-    - [Building openqa-worker](#building-openqa-worker)
+    - [Building the openqa-worker](#building-the-openqa-worker)
     - [Start workers locally](#start-workers-locally)
     - [Start the openqa-worker service](#start-the-openqa-worker-service)
 
@@ -290,9 +290,10 @@ cp /home/fedora/openqa-containers/openqa-worker/conf/workers.ini.template /home/
 | `AUTOINST_URL_HOSTNAME = 172.31.1.1`   | For logging: the worker's location for receiving qemu logs. This is only important for parallel tests. |
 
 
-### Building Openqa Worker
+### Building the Openqa Worker
 To build the openqa worker image:  
-`/home/fedora/openqa-containers/openqa-worker/build-worker-image.sh`  
+`cd /home/fedora/openqa-containers/openqa-worker/;`
+`./build-worker-image.sh`  
 
 ### Start workers locally
 

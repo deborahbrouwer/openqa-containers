@@ -311,25 +311,27 @@ Change the default behaviour by defining values on the command line e.g.
 openqa-worker service runs as `fedora` user so make sure that the user will survive closing the session:  
 `sudo loginctl enable-linger fedora`  
 
-First start `openqa-worker.timer` to restart the openqa-worker.service workers every 12 hours to avoid filling up the disk with their asset caches.    
+First set up, but don't start, the `openqa-worker.timer` to restart the openqa-worker.service workers every 12 hours to avoid filling up the disk with their asset caches.    
 
 ```bash
 sudo cp /home/fedora/openqa-containers/openqa-worker/openqa-worker.timer /usr/lib/systemd/system/openqa-worker.timer;
 sudo rm -rf /etc/systemd/system/timers.target.wants/openqa-worker.timer;
 sudo ln -s /usr/lib/systemd/system/openqa-worker.timer /etc/systemd/system/timers.target.wants/;
-sudo systemctl daemon-reload;
-sudo systemctl start openqa-worker.timer;
-systemctl list-timers --all;
 ```
 
-Next use systemd `openqa-worker.service` to start ten workers:      
+Next set up, but don't start, the `openqa-worker.service`:      
 ```bash
 sudo cp /home/fedora/openqa-containers/openqa-worker/openqa-worker.service /etc/systemd/system/;
 sudo cp /home/fedora/openqa-containers/openqa-worker/start-openqa-worker.sh /usr/bin/start-openqa-worker.sh;
 sudo systemctl daemon-reload;
+```
+Finally, start the timer followed by the workers:  
+```bash
+sudo systemctl start openqa-worker.timer;
 sudo systemctl start openqa-worker;
 ```
+ 
 The `openqa-worker.service` will exit, but verify the workers and their ports with `podman ps -a`.  
-See also `journalctl -f` and `sudo systemctl status openqa-worker`.    
+See also `journalctl -f` and `sudo systemctl status openqa-worker` and `systemctl list-timers --all;` .    
 
 

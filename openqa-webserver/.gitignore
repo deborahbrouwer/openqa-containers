@@ -4,6 +4,5 @@ logs/*
 !hdd/.gitkeep
 openqa-database/data*
 tests*
-createhdds*
 conf/client.conf
 conf/privkey.pem

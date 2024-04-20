@@ -165,7 +165,6 @@ for i in $(seq 1 $NUMBER_OF_WORKERS); do
 	-p $VNC_PORT:$VNC_PORT \
 	-v ${SRV}/conf:/conf:z \
 	-v ${SRV}/init-openqa-worker.sh:/init-openqa-worker.sh:z \
-	-v ${SRV}/ovmf:/usr/share/edk2/ovmf:z \
 	$IMAGE /init-openqa-worker.sh
 
 	((OPENQA_WORKER_INSTANCE++))

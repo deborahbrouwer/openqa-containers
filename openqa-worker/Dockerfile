@@ -1,22 +1,8 @@
-FROM opensuse/tumbleweed
-LABEL title="openqa-worker"
+FROM quay.io/fedora/fedora
+LABEL title="openqa_worker-fedora"
 
-# RUN dnf install -y openqa openqa-worker python3-jsonschema \
-#     perl-REST-Client procps-ng os-autoinst tunctl iproute
-
-RUN zypper in -yl openQA openQA-worker os-autoinst-s390-deps os-autoinst-ipmi-deps && \
-    zypper in -yl qemu-arm qemu-ppc qemu-x86 qemu-tools && \
-    zypper in -yl qemu-hw-display-virtio-gpu qemu-hw-display-virtio-gpu-pci qemu-hw-display-virtio-vga && \
-    zypper in -yl kmod && \
-    zypper in -yl qemu-ovmf-x86_64 ovmf ovmf-tools && \
-    zypper in -yl qemu-uefi-aarch64  && \
-    zypper in -yl vde2 vde2-slirp && \
-    zypper in -yl python3 python3-jsonschema gcc make curl perl-App-cpanminus e2fsprogs \
-        perl-SemVer perl-DateTime perl-NetAddr-IP perl-Test-Assert perl-JSON && \
-    zypper clean && \
-    mkdir -p /root/qemu
-
-RUN cpanm REST::Client
+RUN dnf install -y openqa openqa-worker python3-jsonschema \
+    perl-REST-Client procps-ng os-autoinst tunctl iproute
 
 # fix all ownership/permissions
 RUN chown -R _openqa-worker /usr/share/openqa /var/lib/openqa && \

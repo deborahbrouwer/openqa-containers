@@ -1,5 +1,5 @@
 FROM quay.io/fedora/fedora
-LABEL title="openqa_worker-fedora"
+LABEL title="openqa-worker"
 
 RUN dnf install -y openqa openqa-worker python3-jsonschema \
     perl-REST-Client procps-ng os-autoinst tunctl iproute \

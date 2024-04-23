@@ -2,6 +2,13 @@
 ## Table of Contents
 
 - [About](#about)
+  
+- [The openqa-database](#The-openqa-database)
+    - [Host Directories for database](#host-directories-for-database)
+    - [Database Configuration](#database-configuration)
+    - [Building openqa-database](#building-openqa-database)
+    - [Start the openqa-database locally](#start-the-openqa-database-locally)
+    - [Start the openqa-database as a service](#start-the-openqa-database-as-a-service)
 
 - [The openqa-webserver](#The-openqa-webserver)
     - [Host Directories for Webserver](#host-directories-for-webserver)
@@ -16,7 +23,6 @@
     - [Generating certificates](#generating-certificates)
     - [Reverse Proxy Configuration](#reverse-proxy-configuration)
     - [Start the openqa-reverse-proxy as a service](#start-the-openqa-reverse-proxy-as-a-service)
-- [The openqa-database](#The-openqa-database)
 
 - [The openqa-consumer](#The-openqa-consumer)  
     - [Host Directories for Consumer](#host-directories-for-consumer)
@@ -34,6 +40,25 @@
 
 # About  
 This repository contains scripts to build and run a containerized deployment of [openQA](https://github.com/os-autoinst).  The containers are specifically designed to leverage cloud resources and are customized to support [Fedora](https://fedoraproject.org/wiki/OpenQA) release and update testing. 
+
+
+# The openqa-database
+
+### Host Directories for database
+ 
+* `data/`: The full database shared with the container host.
+
+### Database Configuration
+### Building openqa-database
+
+### Start the openqa-database locally
+### Start the openqa-database as a service
+```
+sudo cp /home/fedora/openqa-containers/openqa-database/openqa-database.service /etc/systemd/system/;
+sudo cp /home/fedora/openqa-containers/openqa-database/start-openqa-database.sh /usr/bin/start-openqa-database.sh;
+sudo systemctl daemon-reload;
+sudo systemctl start openqa-database;
+```
 
 # The openqa-webserver  
 
@@ -181,9 +206,6 @@ Verify:
 `journalctl -f`  
 `curl localhost`  
  Logs: `/home/fedora/openqa-containers/openqa-reverse-proxy/logs`  
-
-
-# The openqa-database
 
 # The openqa-consumer 
 

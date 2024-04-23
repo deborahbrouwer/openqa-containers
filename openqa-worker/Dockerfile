@@ -2,7 +2,8 @@ FROM quay.io/fedora/fedora
 LABEL title="openqa_worker-fedora"
 
 RUN dnf install -y openqa openqa-worker python3-jsonschema \
-    perl-REST-Client procps-ng os-autoinst tunctl iproute
+    perl-REST-Client procps-ng os-autoinst tunctl iproute \
+	edk2-ovmf
 
 # fix all ownership/permissions
 RUN chown -R _openqa-worker /usr/share/openqa /var/lib/openqa && \

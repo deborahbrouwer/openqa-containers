@@ -1,0 +1,6 @@
+[production]
+dsn = DBI:Pg:dbname=openqa;host=<private ip of database container host>
+
+[development]
+dsn = DBI:Pg:dbname=openqa;host=<private ip of database container host>
+

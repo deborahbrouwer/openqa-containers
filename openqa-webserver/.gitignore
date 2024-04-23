@@ -2,7 +2,7 @@ iso/*
 hdd*
 logs/*
 !hdd/.gitkeep
-openqa-database/data*
 tests*
 conf/client.conf
 conf/privkey.pem
+conf/database.ini

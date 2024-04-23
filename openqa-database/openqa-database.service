@@ -1,0 +1,13 @@
+[Unit]
+Description=OpenQA Database
+
+[Service]
+User=fedora
+Group=fedora
+Environment=SRV='/home/fedora/openqa-containers/openqa-database'
+ExecStart=/usr/bin/start-openqa-database.sh
+Restart=no
+ExecStop=/usr/bin/podman exec openqa-database /bin/bash -c "pkill -f tail"
+
+[Install]
+WantedBy=multi-user.target

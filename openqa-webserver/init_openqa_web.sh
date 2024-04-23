@@ -18,12 +18,9 @@ function configure_openqa() {
 
   # This config includes /etc/httpd/conf.d/openqa-common.inc which sets the openQA Document Root for web
   ln -s /conf/openqa.conf /etc/httpd/conf.d/openqa.conf
-}
 
-function upgradedb() {
-  echo "Waiting for DB creation"
-  while ! su geekotest -c 'PGPASSWORD=openqa psql -h db -U openqa --list | grep -qe openqa'; do sleep .1; done
-  su geekotest -c '/usr/share/openqa/script/upgradedb --upgrade_database'
+  rm -rf /etc/openqa/database.ini
+  ln -s /conf/database.ini /etc/openqa/database.ini
 }
 
 function start_services() {
@@ -34,30 +31,6 @@ function start_services() {
   # if apache server fails look in /etc/httpd/logs
   httpd -DNOSSL || true
   su geekotest -c /usr/share/openqa/script/openqa-webui-daemon
-}
-
-function start_database() {
-  mkdir -p /var/run/postgresql
-  chown -R postgres:postgres /var/lib/pgsql /var/run/postgresql && \
-    find /var/lib/pgsql/data -type d -exec chmod 750 {} + && \
-    find /var/lib/pgsql/data -type f -exec chmod 750 {} +
-
-  chmod ug+r /var/lib/pgsql/data
-
-  DATADIR="/var/lib/pgsql/data/"
-
-  if [ -z "$(ls -A $DATADIR)" ]; then
-    echo "Initializing PostgreSQL"
-    su postgres -c "bash -c '/usr/bin/initdb ${DATADIR}'"
-    if [ $? -ne 0 ]; then
-      echo "Initialization failed."
-      exit 1
-    fi
-  fi
-  su postgres -c "bash -c '/usr/bin/pg_ctl -s -D ${DATADIR} start'"
-  su postgres -c '/usr/bin/openqa-setup-db'
-
-  # TODO: use upgradedb script here if necessary for real data
 }
 
 usermod --shell /bin/sh geekotest
@@ -95,7 +68,8 @@ fi
 chown -R geekotest /usr/share/openqa /var/lib/openqa && \
 	chmod -R a+rw /usr/share/openqa /var/lib/openqa
 
-start_database
+dnf install -y iputils iproute || true
+
 start_services
 
 cleanup

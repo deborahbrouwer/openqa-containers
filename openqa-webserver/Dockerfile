@@ -1,5 +1,5 @@
 FROM quay.io/fedora/fedora
-LABEL title="openqa"
+LABEL title="openqa-webserver"
 
 RUN dnf install -y openqa
 

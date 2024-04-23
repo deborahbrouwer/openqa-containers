@@ -56,6 +56,7 @@ This repository contains scripts to build and run a containerized deployment of 
 ```
 sudo cp /home/fedora/openqa-containers/openqa-database/openqa-database.service /etc/systemd/system/;
 sudo cp /home/fedora/openqa-containers/openqa-database/start-openqa-database.sh /usr/bin/start-openqa-database.sh;
+sudo cp /home/fedora/openqa-containers/openqa-database/stop-openqa-database.sh /usr/bin/stop-openqa-database.sh;
 sudo systemctl daemon-reload;
 sudo systemctl start openqa-database;
 ```

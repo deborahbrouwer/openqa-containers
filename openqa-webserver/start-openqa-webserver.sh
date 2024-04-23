@@ -5,16 +5,6 @@
 set -e
 IMAGE=localhost/openqa-webserver:latest
 
-if [ ! -d "${SRV}/hdd/fixed" ] && [ ! -L "${SRV}}/hdd/fixed" ]; then
-	mkdir -p "${SRV}/hdd/fixed"
-fi
-
-if [ ! -d "${SRV}/iso/fixed" ] && [ ! -L "${SRV}}/iso/fixed" ]; then
-	mkdir -p "${SRV}/iso/fixed"
-fi
-
-cp "${SRV}/cloudinit.iso" "${SRV}/iso/fixed"
-
 if [ ! -f "${SRV}/conf/openqa.ini" ]; then
 	echo "Missing ${SRV}/conf/openqa.ini"
     exit
@@ -25,8 +15,26 @@ if [ ! -f "${SRV}/conf/client.conf" ]; then
     exit
 fi
 
+if [ ! -d "${SRV}/hdd/fixed" ] && [ ! -L "${SRV}}/hdd/fixed" ]; then
+	mkdir -p "${SRV}/hdd/fixed"
+fi
+
+if [ ! -d "${SRV}/iso/fixed" ] && [ ! -L "${SRV}}/iso/fixed" ]; then
+	mkdir -p "${SRV}/iso/fixed"
+fi
+
+cp "${SRV}/cloudinit.iso" "${SRV}/iso/fixed"
+
 if [ ! -d "${SRV}/logs" ] && [ ! -L "${SRV}}/logs" ]; then
 	mkdir -p "${SRV}/logs"
+fi
+
+if [ ! -d "${SRV}/testresults" ] && [ ! -L "${SRV}}/testresults" ]; then
+	mkdir -p "${SRV}/testresults"
+fi
+
+if [ ! -d "${SRV}/images" ] && [ ! -L "${SRV}}/images" ]; then
+	mkdir -p "${SRV}/images"
 fi
 
 if [[ -z $(podman images --format "{{.Tag}}" $IMAGE) ]]; then
@@ -46,6 +54,8 @@ podman run --rm -i --name openqa-webserver \
 	-v ${SRV}/iso:/var/lib/openqa/share/factory/iso:z \
 	-v ${SRV}/conf:/conf/:z \
 	-v ${SRV}/logs:/etc/httpd/logs/:z \
+	-v ${SRV}/testresults:/var/lib/openqa/testresults/:z \
+	-v ${SRV}/images:/var/lib/openqa/images/:z \
 	-v ${SRV}/init_openqa_web.sh:/init_openqa_web.sh:z \
 	$IMAGE /init_openqa_web.sh
 

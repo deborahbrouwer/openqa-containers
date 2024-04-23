@@ -5,9 +5,8 @@
   
 - [The openqa-database](#The-openqa-database)
     - [Host Directories for database](#host-directories-for-database)
-    - [Database Configuration](#database-configuration)
     - [Building openqa-database](#building-openqa-database)
-    - [Start the openqa-database locally](#start-the-openqa-database-locally)
+    - [Run the openqa-database locally](#start-the-openqa-database-locally)
     - [Start the openqa-database as a service](#start-the-openqa-database-as-a-service)
 
 - [The openqa-webserver](#The-openqa-webserver)
@@ -46,12 +45,15 @@ This repository contains scripts to build and run a containerized deployment of 
 
 ### Host Directories for database
  
-* `data/`: The full database shared with the container host.
+* `data/`: The full database shared with the container host. Database logs are in `data/log`.  
 
-### Database Configuration
 ### Building openqa-database
+`/home/fedora/openqa-containers/openqa-database/build-database-image.sh`  
 
-### Start the openqa-database locally
+### Run the openqa-database locally
+`/home/fedora/openqa-containers/openqa-database/start-openqa-database.sh`  
+`/home/fedora/openqa-containers/openqa-database/stop-openqa-database.sh`  
+
 ### Start the openqa-database as a service
 ```
 sudo cp /home/fedora/openqa-containers/openqa-database/openqa-database.service /etc/systemd/system/;
@@ -69,9 +71,9 @@ The openqa-webserver container runs a backend web server on non-privileged port 
 The openqa-webserver container shares these directories with its host:  
 
 * `tests/`: The full [os-autoinst-distri-fedora](https://pagure.io/fedora-qa/os-autoinst-distri-fedora) repository.
-  
-* `openqa-database/data/`: the PostgreSQL database where login information as well as test scheduling and results are stored.  It's possible to just copy this from other instances using rsync.  
-  
+* `testresults`
+* `images`: screenshots
+* `logs`: httpd access and error logs  
 * `hdd/`: holds OS images for testing.
     * `hdd/fixed`:  Images in this subdir are exempt from cleanup.  Store images that are manually created through [createhdds](https://pagure.io/fedora-qa/createhdds) in this subdir.  
     > Note:  

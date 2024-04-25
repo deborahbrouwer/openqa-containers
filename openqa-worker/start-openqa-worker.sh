@@ -152,7 +152,7 @@ for i in $(seq 1 $NUMBER_OF_WORKERS); do
 	podman run \
 	--rm -i \
 	${detached_arg} \
-	--name openqa-worker-${OPENQA_WORKER_INSTANCE} \
+	--name openqa-worker-${OPENQA_WORKER_INSTANCE} --replace \
 	--security-opt label=disable \
 	--device=/dev/kvm \
 	--pids-limit=-1 \

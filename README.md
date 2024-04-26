@@ -38,8 +38,10 @@
     - [Start the openqa-worker service](#start-the-openqa-worker-service)
 
 # About  
-This repository contains scripts to build and run a containerized deployment of [openQA](https://github.com/os-autoinst).  The containers are specifically designed to leverage cloud resources and are customized to support [Fedora](https://fedoraproject.org/wiki/OpenQA) release and update testing. 
+To run this automatically use the ansible repo:
+`https://pagure.io/ansible-openqa-cloud`  
 
+This repository contains scripts to manually build and run a containerized deployment of [openQA](https://github.com/os-autoinst).  The containers are specifically designed to leverage cloud resources and are customized to support [Fedora](https://fedoraproject.org/wiki/OpenQA) release and update testing. 
 
 # The openqa-database
 

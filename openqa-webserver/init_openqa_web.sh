@@ -68,8 +68,6 @@ fi
 chown -R geekotest /usr/share/openqa /var/lib/openqa && \
 	chmod -R a+rw /usr/share/openqa /var/lib/openqa
 
-dnf install -y iputils iproute || true
-
 start_services
 
 cleanup

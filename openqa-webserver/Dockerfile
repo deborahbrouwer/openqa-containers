@@ -15,11 +15,12 @@ RUN dnf install -y nodejs && \
 # do not force fixes as the specific version are required and will break otherwise
 RUN npm audit fix || true
 
-RUN dnf install -y openqa-local-db \
-	perl-Mojolicious perl-Mojolicious-Plugin-AssetPack \
+RUN dnf install -y perl-Mojolicious perl-Mojolicious-Plugin-AssetPack \
 	ruby-devel 'rubygem(sass)' python3-jsonschema wget procps-ng
 
 RUN dnf install -y openqa-httpd mod_ssl mod_proxy_html mod_session mod_md
+
+RUN dnf install -y iputils iproute vim
 
 RUN ln -s /etc/httpd/conf.modules.d/00-base.conf /etc/httpd/conf.modules.d/00-base.load
 RUN ln -s /etc/httpd/conf.modules.d/00-ssl.conf /etc/httpd/conf.modules.d/00-ssl.load

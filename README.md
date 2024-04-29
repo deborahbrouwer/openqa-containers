@@ -348,14 +348,14 @@ sudo ln -s /usr/lib/systemd/system/openqa-worker.timer /etc/systemd/system/timer
 
 Next set up, but don't start, the `openqa-worker.service`:      
 ```bash
-sudo cp /home/fedora/openqa-containers/openqa-worker/openqa-worker.service /etc/systemd/system/;
+sudo cp /home/fedora/openqa-containers/openqa-worker/openqa-worker@.service /etc/systemd/system/;
 sudo cp /home/fedora/openqa-containers/openqa-worker/start-openqa-worker.sh /usr/bin/start-openqa-worker.sh;
 sudo systemctl daemon-reload;
 ```
 Finally, start the timer followed by the workers:  
 ```bash
 sudo systemctl start openqa-worker.timer;
-sudo systemctl start openqa-worker;
+sudo systemctl start openqa-worker@1.service;
 ```
  
 The `openqa-worker.service` will exit, but verify the workers and their ports with `podman ps -a`.  

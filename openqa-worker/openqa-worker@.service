@@ -1,0 +1,11 @@
+[Unit]
+Description=OpenQA Workers: start a worker container
+
+[Service]
+User=fedora
+Group=fedora
+ExecStart=/usr/bin/start-openqa-worker.sh %i
+ExecStop=/usr/bin/podman exec -it openqa-worker-%i /bin/bash -c "pkill -u _openqa-worker"
+
+[Install]
+WantedBy=multi-user.target

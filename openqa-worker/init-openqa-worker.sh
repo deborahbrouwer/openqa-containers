@@ -9,16 +9,17 @@ function cleanup() {
 }
 trap cleanup SIGTERM SIGINT
 
-# Replace package configs with custom configs
-rm /etc/openqa/client.conf /etc/openqa/workers.ini -rf
-ln -s /conf/client.conf /etc/openqa/client.conf
-ln -s /conf/workers.ini /etc/openqa/workers.ini
 
 if [[ -z $OPENQA_WORKER_INSTANCE ]]; then
 	OPENQA_WORKER_INSTANCE=1
 fi
 
-echo "${CONTAINER_HOST}:${OPENQA_WORKER_INSTANCE}" > /etc/hostname
+sed -i "/^WORKER_CLASS/c\WORKER_CLASS=$WORKER_CLASS" /conf/workers.ini
+
+# Replace package configs with custom configs
+rm /etc/openqa/client.conf /etc/openqa/workers.ini -rf
+ln -s /conf/client.conf /etc/openqa/client.conf
+ln -s /conf/workers.ini /etc/openqa/workers.ini
 
 mkdir -p "/var/lib/openqa/pool/${OPENQA_WORKER_INSTANCE}/"
 chown -R _openqa-worker /var/lib/openqa/pool/
@@ -58,9 +59,13 @@ else
 	su _openqa-worker -c "git -C '$test_dir' pull" || true
 fi
 
-if echo "$WORKER_CLASS" | grep -q "vde"; then
+if [ -n "$VDE" ]; then
 	chown -R _openqa-worker $vde_switch_path && \
 		chmod -R a+rwx $vde_switch_path
+
+	# temporary fixes to make vde work in containers - need to go upstream
+	file_path="/usr/lib/os-autoinst/backend/qemu.pm"
+	patch "$file_path" < tmp_vde_changes.diff
 fi
 
 qemu-system-x86_64 -S &
